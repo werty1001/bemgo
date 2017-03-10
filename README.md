@@ -1,5 +1,6 @@
 
 # BemGo
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/werty1001/bemgo/master/LICENSE)
 
 Starter kit for developing [BEM](https://en.bem.info/) applications using [Gulp](http://gulpjs.com/) and [Webpack](https://webpack.js.org/).
 
@@ -13,13 +14,16 @@ Starter kit for developing [BEM](https://en.bem.info/) applications using [Gulp]
 ### Features
 * The kit is based on the BEM methodology (Block, Element, Modifier)
 * Independent blocks, you can reuse it
-* Redefinition level for styles
+* Redefinition level for blocks
 * Nothing superfluous, in build only those files that are used
 * [Jade/Pug](https://pugjs.org) or [Twig](http://twig.sensiolabs.org/) or @include for HTML coding
 * [LESS](http://lesscss.org/) or [Sass](http://sass-lang.com/) or [Stylus](http://stylus-lang.com/) + [PostCSS](http://postcss.org/) for styles
-* Support ES6, build JS using Webpack 2
-* Support for all types of sprites: sprite.svg / sprite.png / sprite@2x.png / symbol.svg
-
+* Support ES6 with babel, build JS using Webpack 2
+* Support for all types of sprites: sprite.svg / sprite.png / sprite.2x.png / symbol.svg
+* JSON data for use in templates
+* FTP deploy
+* Creating zip archive with a complete build
+and more ...
 ---
 
 ### Install
@@ -39,13 +43,13 @@ npm run init
 // Or
 npm run demo
 ```
-> For change init/demo repositories, please edit **package.json**!
+> For change init repositories, please edit **package.json**!
 
 ---
 
 ### Usage
 * `npm start` — start development
-* `npm run build` — run prodaction build
+* `npm run build` — run production build
 
 ---
 
@@ -90,6 +94,6 @@ block/
 ├── block__el.js
 └── data.json        # Data for use in templates
 ```
+### Changelog
 
 ---
-
