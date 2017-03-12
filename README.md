@@ -41,30 +41,43 @@ npm i
 ```
 By default, app folder doesn't exist, you can init new app or running demo:
 ```bash
-npm run init
-```
-```bash
 npm run demo
 ```
-> For change init repositories, please edit **package.json**!
+```bash
+npm run init
+```
+> For change init repository, please edit **package.json**!
 
 ---
 
 ### Commands
 * `npm i` — install dependencies
 * `npm run init` — init new APP
-* `npm run demo` — init demo APP
+* `npm run demo` — running demo
 * `npm start` — start development
 * `npm run do` — run production build
 
 Also, you can create new blocks and files:
-* `npm run add style` — add style
-* `npm run add block` — add block
-* `npm run add page` — add page
-* `npm run add json` — add data.json
-* `npm run add script` — add script
-* `npm run add template` — add template
+* `npm run add block [name]:[file]:[folder]` — add block
+* `npm run add style [block/el name]` — add style
+* `npm run add page [page name]` — add page
+* `npm run add json [block name]` — add data.json
+* `npm run add script [block/el name]` — add script
+* `npm run add template [block/el name]` — add template
 
+**Examples:**
+Add two blocks header and footer:
+```bash
+npm run add block header footer
+```
+Add header block with header.css and header.js and img folder:
+```bash
+npm run add block header:style:script:img
+```
+Add style header.css and header__content.css in header block:
+```bash
+npm run add style header header__content
+```
 ---
 
 ### Structure
@@ -72,10 +85,10 @@ Also, you can create new blocks and files:
 Builder has the following file structure:
 ```
 bemgo/
-├── app/             # Dev source
-├── dist/            # Build here
-├── core/            # Core
-├── tasks/           # Tasks
+├── app/              # Dev source
+├── dist/             # Build here
+├── core/             # Core
+├── tasks/            # Tasks
 ├── gulpfile.js
 └── package.json
 ```
@@ -83,14 +96,17 @@ bemgo/
 App has the following file structure:
 ```
 app/
-├── blocks/          # Blocks
+├── blocks/           # Blocks
 │   ├── common/ 
 │   │   └── block/ 
 │   └── develop/ 
-│       └── block/ 
-├── pages/           # Pages
-├── config.js        # Config (optional)
-└── icon.png         # Icon for generate favicons (optional)
+│   │   └── block/ 
+│   └── helpers.css   # Global helper for styles (optional)
+├── pages/            # Pages
+│   ├── index.html
+│   └── about.html
+├── config.js         # Config (optional)
+└── icon.png          # Icon for generate favicons (optional)
 ```
 
 Block has [flat](https://en.bem.info/methodology/filestructure/#flat) structure and all files and folders is optional:
@@ -102,9 +118,9 @@ block/
 │   └── symbol/      # Icons for symbol sprite (only svg)
 ├── assets/          # Any assets files
 ├── block.js
-├── block.pug
-├── block.styl
-├── block__el.styl
+├── block.html
+├── block.css
+├── block__el.css
 ├── block__el.js
 └── data.json        # Data for use in templates
 ```
