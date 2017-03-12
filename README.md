@@ -7,7 +7,7 @@ Starter kit for developing [BEM](https://en.bem.info/) applications using [Gulp]
 ---
 
 ### Anchors
-[Features](#features) | [Install](#install) | [Usage](#usage) | [Structure](#structure) | [Changelog](#changelog)
+[Features](#features) | [Install](#install) | [Commands](#commands) | [Structure](#structure) | [Usage](#usage) | [Changelog](#changelog)
 
 ---
 
@@ -23,7 +23,9 @@ Starter kit for developing [BEM](https://en.bem.info/) applications using [Gulp]
 * JSON data for use in templates
 * FTP deploy
 * Creating zip archive with a complete build
+
 and more ...
+
 ---
 
 ### Install
@@ -37,19 +39,31 @@ Then install dependencies:
 ```bash
 npm i
 ```
-By default, app folder doesn't exist, you can init new app from my repository or running demo app:
+By default, app folder doesn't exist, you can init new app or running demo:
 ```bash
 npm run init
-// Or
+```
+```bash
 npm run demo
 ```
 > For change init repositories, please edit **package.json**!
 
 ---
 
-### Usage
+### Commands
+* `npm i` — install dependencies
+* `npm run init` — init new APP
+* `npm run demo` — init demo APP
 * `npm start` — start development
-* `npm run build` — run production build
+* `npm run do` — run production build
+
+Also, you can create new blocks and files:
+* `npm run add style` — add style
+* `npm run add block` — add block
+* `npm run add page` — add page
+* `npm run add json` — add data.json
+* `npm run add script` — add script
+* `npm run add template` — add template
 
 ---
 
@@ -69,12 +83,12 @@ bemgo/
 App has the following file structure:
 ```
 app/
-├── pages/           # Pages
 ├── blocks/          # Blocks
 │   ├── common/ 
-│       └── block/ 
+│   │   └── block/ 
 │   └── develop/ 
 │       └── block/ 
+├── pages/           # Pages
 ├── config.js        # Config (optional)
 └── icon.png         # Icon for generate favicons (optional)
 ```
@@ -86,7 +100,7 @@ block/
 ├── img/             # Any images for style
 │   ├── sprite/      # Icons for sprite here (png or svg)
 │   └── symbol/      # Icons for symbol sprite (only svg)
-├── assets/          # Any files
+├── assets/          # Any assets files
 ├── block.js
 ├── block.pug
 ├── block.styl
@@ -94,6 +108,9 @@ block/
 ├── block__el.js
 └── data.json        # Data for use in templates
 ```
+### Usage
+---
 ### Changelog
-
+**0.1.0**
+* Alpha
 ---
