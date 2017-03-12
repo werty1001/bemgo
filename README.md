@@ -58,14 +58,15 @@ npm run init
 * `npm run do` — run production build
 
 Also, you can create new blocks and files:
-* `npm run add block [name]:[file]:[folder]` — add block
-* `npm run add style [block/el name]` — add style
+* `npm run add block [block name]:[file]:[folder]` — add block
+* `npm run add style [style name]` — add style
 * `npm run add page [page name]` — add page
 * `npm run add json [block name]` — add data.json
-* `npm run add script [block/el name]` — add script
-* `npm run add template [block/el name]` — add template
+* `npm run add script [script name]` — add script
+* `npm run add template [template name]` — add template
 
-**Examples:**
+##### Examples:
+
 Add two blocks header and footer:
 ```bash
 npm run add block header footer
@@ -77,6 +78,10 @@ npm run add block header:style:script:img
 Add style header.css and header__content.css in header block:
 ```bash
 npm run add style header header__content
+```
+Add data.json in nav block:
+```bash
+npm run add json nav
 ```
 ---
 
@@ -96,15 +101,15 @@ bemgo/
 App has the following file structure:
 ```
 app/
+├── pages/            # Pages
+│   ├── index.html
+│   └── about.html
 ├── blocks/           # Blocks
 │   ├── common/ 
 │   │   └── block/ 
 │   └── develop/ 
 │   │   └── block/ 
 │   └── helpers.css   # Global helper for styles (optional)
-├── pages/            # Pages
-│   ├── index.html
-│   └── about.html
 ├── config.js         # Config (optional)
 └── icon.png          # Icon for generate favicons (optional)
 ```
@@ -130,3 +135,4 @@ block/
 **0.1.0**
 * Alpha
 ---
+
