@@ -90,6 +90,7 @@ npm run add json nav
 Builder has the following file structure:
 ```
 bemgo/
+│
 ├── app/                 # Dev source
 ├── dist/                # Build here
 ├── core/                # Core
@@ -102,6 +103,7 @@ bemgo/
 App has the following file structure:
 ```
 app/
+│
 ├── pages/               # Pages
 │   ├── index.html
 │   └── about.html
@@ -120,8 +122,9 @@ app/
 Block has [flat](https://en.bem.info/methodology/filestructure/#flat) structure and all files and folders is optional:
 ```
 block/
+│
 ├── fonts/               # Fonts
-│   └──  Roboto.woff2
+│   └── Roboto.woff2
 │
 ├── img/                 # Any images for style
 │   ├── sprite/          # Icons for sprite here (png or svg)
@@ -146,6 +149,7 @@ block/
 App has `config.js` file for change default settings:
 ```JS
 {
+    // Data for templates
 	app: {
 		lang: 'en',
 		name: 'Site',
@@ -158,9 +162,9 @@ App has `config.js` file for change default settings:
 	},
 
 	options: {
-		babel: false, // Use babel for build JS
-		bundles: false, // Lang
-		sourcemap: false
+		babel: false, // Use babel?
+		bundles: false, // Great bundles?
+		sourcemap: false // Need sourcemaps?
 	},
 
     // Order redefinition levels
@@ -170,6 +174,7 @@ App has `config.js` file for change default settings:
 		themes: 3
 	},
 
+    // Extnames
 	extnames: {
 		templates: 'pug',
 		scripts: 'js',
@@ -218,12 +223,12 @@ App has `config.js` file for change default settings:
     // Blocks to be used in any case, example:
     // 
     // blocks: {
-	//      app: {
-	//        header: 'header--home',
-	//        content__section: ''
-	//      }
-	// },
-	//
+    //      app: {
+    //        header: 'header--home',
+    //        content__section: ''
+    //      }
+    // },
+    //
 
 	blocks: {
 		app: {}
@@ -231,13 +236,13 @@ App has `config.js` file for change default settings:
 
     // Assets to be used in any case, example:
     //
-	// used: {
-	//     assets: [ 'footer/logo.png' ],
-	//     symbol: [ 'header__tel' ],
-	//     styles: [ 'slick.css' ],
-	//     scripts: [ 'slick.js' ]
-	// },
-	//
+    // used: {
+    //     assets: [ 'footer/logo.png' ],
+    //     symbol: [ 'header__tel' ],
+    //     styles: [ 'slick.css' ],
+    //     scripts: [ 'slick.js' ]
+    // },
+    //
 
 	used: {
 		assets: [],
