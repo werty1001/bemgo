@@ -142,129 +142,134 @@ block/
 ```
 ---
 ### Usage
-[Config](#config) | [Install](#install) | [Commands](#commands) | [Structure](#structure) | [Usage](#usage) | [Changelog](#changelog)
+[Config](#config)
 
 ---
 ### Config
-App has `config.js` file for change default settings:
+The app can have a `config.js` file to change the default settings:
 ```JS
 {
-    // Data for templates
-	app: {
-		lang: 'en',
-		name: 'Site',
-		description: 'Description',
-		domain: 'google.com',
-		preloader: false,
-		responsive: true,
-		microdata: false,
-		jquery: false
-	},
 
-	options: {
-		babel: false, // Use babel?
-		bundles: false, // Great bundles?
-		sourcemap: false // Need sourcemaps?
-	},
+  // Data for templates
+  app: {
+    lang: 'en',
+    name: 'Site',
+    description: 'Description',
+    domain: 'google.com',
+    preloader: false,
+    responsive: true,
+    microdata: false,
+    jquery: false
+  },
 
-    // Order redefinition levels
-	levels: {
-		common: 1,
-		develop: 2,
-		themes: 3
-	},
+  // Options
+  options: {
+    babel: false, // Use babel?
+    bundles: false, // Great bundles for every page?
+    sourcemap: false // Need sourcemaps?
+  },
 
-    // Extnames
-	extnames: {
-		templates: 'pug',
-		scripts: 'js',
-		styles: 'styl'
-	},
+  // Redefinition levels order (common first, then develop and last themes )
+  levels: {
+    common: 1,
+    develop: 2,
+    themes: 3
+  },
 
-    // Build structure
-	dist: {
-		styles: 'styles',
-		fonts: 'styles/fonts',
-		img: 'styles/img',
-		scripts: 'scripts',
-		static: 'static',
-		favicons: 'favicons'
-	},
+  // Extnames for search
+  extnames: {
+    templates: 'html', // html or pug or twig
+    scripts: 'js', // only js
+    styles: 'css' // css or styl or less or scss or sass
+  },
 
-    // Which icons need to generate
-	head: {
-		favicons: true,
-		androidIcons: false,
-		appleTouchIcons: false,
-		msapplication: false,
-		safariPinned: false,
-		manifest: false
-	},
+  // Build structure
+  dist: {
+    styles: 'styles',
+    fonts: 'styles/fonts',
+    img: 'styles/img',
+    scripts: 'scripts',
+    static: 'static',
+    favicons: 'favicons'
+  },
 
-    // Data for manifest
-	manifest: {
-		appName: 'Name',
-		appDescription: 'Description',
-		background: '#020307',
-		display: 'standalone',
-		orientation: 'portrait',
-		start_url: '/?homescreen=1'
-	},
+  // Generate files for head
+  head: {
+    favicons: true,
+    androidIcons: false,
+    appleTouchIcons: false,
+    msapplication: false,
+    safariPinned: false,
+    manifest: false
+  },
 
-    // Data for ftp deploy
-	ftp: {
-		port: 21,
-		host: false,
-		user: false,
-		pass: false,
-		dest: false
-	},
+  // Data for manifest
+  manifest: {
+    appName: 'Name',
+    appDescription: 'Description',
+    background: '#020307',
+    display: 'standalone',
+    orientation: 'portrait',
+    start_url: '/?homescreen=1'
+  },
 
-    // Blocks to be used in any case, example:
-    // 
-    // blocks: {
-    //      app: {
-    //        header: 'header--home',
-    //        content__section: ''
-    //      }
-    // },
-    //
+  // Data for ftp deploy
+  ftp: {
+    port: 21,
+    host: false,
+    user: false,
+    pass: false,
+    dest: false
+  },
 
-	blocks: {
-		app: {}
-	},
+  // Blocks to be used in any case, example:
+  // 
+  // blocks: {
+  //   app: {
+  //     header: 'header--home',
+  //     content__section: ''
+  //   },
+  //   index: {
+  //     slider: 'home--slider'
+  //   }
+  // },
+  //
 
-    // Assets to be used in any case, example:
-    //
-    // used: {
-    //     assets: [ 'footer/logo.png' ],
-    //     symbol: [ 'header__tel' ],
-    //     styles: [ 'slick.css' ],
-    //     scripts: [ 'slick.js' ]
-    // },
-    //
+  blocks: {
+    app: {}
+  },
 
-	used: {
-		assets: [],
-		symbol: [],
-		styles: [],
-		scripts: []
-	},
+  // Assets to be used in any case, example:
+  //
+  // used: {
+  //     assets: [ 'footer/logo.png' ],
+  //     symbol: [ 'header__tel' ],
+  //     styles: [ 'slick.css' ],
+  //     scripts: [ 'slick.js' ]
+  // },
+  //
 
-    // Default content for new files
-	add: {
-		page: '',
-		json: '',
-		style: '',
-		script: '',
-		template: ''
-	},
+  used: {
+    assets: [],
+    symbol: [],
+    styles: [],
+    scripts: []
+  },
 
-    // Main level
-	addLevel: 'develop',
+  // Default content for new files
+  add: {
+    page: '',
+    json: '',
+    style: '',
+    script: '',
+    template: ''
+  },
 
-    // HTML attributes for search assets
-	assetsAttr: [ 'href', 'src', 'srcset' ]
+  // Main level
+  mainLevel: 'develop',
+
+  // HTML attributes for search assets
+  assetsAttr: [ 'href', 'src', 'srcset' ]
 
 }
 ```
@@ -275,3 +280,4 @@ App has `config.js` file for change default settings:
 **0.1.0**
 * Alpha
 ---
+
