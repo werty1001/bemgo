@@ -21,6 +21,7 @@ Starter kit for developing [BEM](https://en.bem.info/) applications using [Gulp]
 * Support for all types of sprites: sprite.svg / sprite.png / sprite.2x.png / symbol.svg
 * JSON data for use in templates
 * FTP deploy
+* Generate favicons and apple touch icons
 * Creating zip archive with a complete build
 * Nothing superfluous, in build only those files that are used
 
@@ -138,15 +139,16 @@ block/
 ├── block.css
 ├── block__el.css
 ├── block__el.js
+│
 └── data.json            # Data for use in templates
 ```
 ---
 ### Usage
-[Config](#config)
+[Config](#config) | [Sprites](#sprites) | [Symbol](#symbol) | [Tasks](#tasks)
 
 ---
 ### Config
-The app can have a `config.js` file to change the default settings:
+If app contain a `config.js`, it change default settings:
 ```JS
 {
 
@@ -222,32 +224,34 @@ The app can have a `config.js` file to change the default settings:
     dest: false
   },
 
-  // Blocks to be used in any case, example:
-  // 
-  // blocks: {
-  //   app: {
-  //     header: 'header--home',
-  //     content__section: ''
-  //   },
-  //   index: {
-  //     slider: 'home--slider'
-  //   }
-  // },
-  //
+  /* Blocks to be used in any case, example:
+
+  blocks: {
+    app: {
+      header: 'header--home',
+      content__section: ''
+    },
+    index: {
+      slider: 'home--slider'
+    }
+  }
+
+  */
 
   blocks: {
     app: {}
   },
 
-  // Assets to be used in any case, example:
-  //
-  // used: {
-  //     assets: [ 'footer/logo.png' ],
-  //     symbol: [ 'header__tel' ],
-  //     styles: [ 'slick.css' ],
-  //     scripts: [ 'slick.js' ]
-  // },
-  //
+  /* Assets to be used in any case, example:
+
+  used: {
+    assets: [ 'footer/logo.png' ],
+    symbol: [ 'header__tel' ],
+    styles: [ 'slick.css' ],
+    scripts: [ 'slick.js' ]
+  }
+
+  */
 
   used: {
     assets: [],
@@ -273,11 +277,55 @@ The app can have a `config.js` file to change the default settings:
 
 }
 ```
+---
+### Sprites
+For generate sprites (except [symbol](#symbol)) used PostCSS  [plugin](https://github.com/2createStudio/postcss-sprites) and it run only in production build, example:
+```CSS
+.tel {
+    background: url('img/sprite/tel.png') no-repeat top center;
+}
+```
+In production will be:
+```CSS
+.tel {
+    background-image: url('img/sprite.png');
+    background-position: 0 0;
+}
+```
+---
+### Symbol
+On development will be used all icons from `img/symbol` folder, but in production build will be used only those icons that are used in HTML code in tag `use` with pattern `#[blockName]__[iconName]`, example:
+```HTML
+<svg class="icon">
+    <use xlink:href="#header__account"></use>
+</svg>
+```
+---
+### Tasks
+If you want add new task, create new file `mytask.js` in tasks folder with this content:
+```JS
+'use strict';
+
+module.exports = ( task, core ) => {
+
+  return ( cb ) => {
+
+    // Your task here
+    // Remember! This function must return cb() or gulp pipe
+
+  } 
+
+};
+```
+After that, you can use command `npm start mytask` for call it.
 
 
 ---
 ### Changelog
-**0.1.0**
-* Alpha
+* **v 1.0.0**
+  * Release version
 ---
+
+### Thanks
+Many thanks to [Ilya Kantor](https://github.com/iliakan) for some tricks.
 
