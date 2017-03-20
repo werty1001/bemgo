@@ -19,11 +19,11 @@ Starter kit for developing [BEM](https://en.bem.info/) applications using [Gulp]
 * [LESS](http://lesscss.org/) or [Sass](http://sass-lang.com/) or [Stylus](http://stylus-lang.com/) + [PostCSS](http://postcss.org/) for styles
 * ES6 with babel, build JS using Webpack
 * Support for all types of sprites: sprite.svg / sprite.png / sprite.2x.png / symbol.svg
-* JSON data for use in templates
-* FTP deploy
+* Support JSON data for use in templates
 * Generate favicons and apple touch icons
-* Creating zip archive with a complete build
-* Nothing superfluous, in build only those files that are used
+* Creating zip archive with a complete build or development files
+* Nothing unnecessary, in build only those files that are used
+* FTP deploy
 
 and more ...
 
@@ -40,23 +40,22 @@ Then install dependencies:
 ```bash
 npm i
 ```
-By default, app folder doesn't exist, you can init new app or running demo:
-```bash
-npm run demo
-```
+By default, app folder doesn't exist, you can init new app with simple command:
 ```bash
 npm run init
 ```
-> For change init repository, please edit **package.json**!
+> Remember, you first need to edit a **package.json** file and replace init command and specify your repository for clone it!
 
 ---
 
 ### Commands
 * `npm i` — install dependencies
-* `npm run init` — init new APP
-* `npm run demo` — running demo
 * `npm start` — start development
+* `npm run init` — init new APP
 * `npm run do` — run production build
+* `npm run zip` — creating zip archive with a complete build
+* `npm run zip:dev` — creating zip archive with development files
+* `npm run ftp` — run FTP deploy
 
 Also, you can create new blocks and files:
 * `npm run add block [block name]:[file]:[folder]` — add block
@@ -110,10 +109,13 @@ app/
 │   └── about.html
 │
 ├── blocks/              # Blocks
+│   │
 │   ├── common/ 
 │   │   └── block/ 
+│   │
 │   └── develop/ 
 │   │   └── block/ 
+│   │
 │   └── helpers.css      # Global helpers for styles (optional)
 │
 ├── config.js            # Config (optional)
@@ -128,11 +130,17 @@ block/
 │   └── Roboto.woff2
 │
 ├── img/                 # Any images for style
+│   │
 │   ├── sprite/          # Icons for sprite here (png or svg)
+│   │   └── mail.png
+│   │
 │   ├── symbol/          # Icons for symbol sprite (only svg)
+│   │   └── account.svg
+│   │
 │   └── bg.png
 │
 ├── assets/              # Any assets files
+│   └── image.jpg
 │
 ├── block.js
 ├── block.html
@@ -167,7 +175,7 @@ If app contain a `config.js`, it change default settings:
   // Options
   options: {
     babel: false, // Use babel?
-    bundles: false, // Great bundles for every page?
+    bundles: false, // Create bundles for every page?
     sourcemap: false // Need sourcemaps?
   },
 
@@ -322,10 +330,9 @@ After that, you can use command `npm start mytask` for call it.
 
 ---
 ### Changelog
-* **v 1.0.0**
-  * Release version
+**0.1.0**
+* beta version
 ---
 
 ### Thanks
 Many thanks to [Ilya Kantor](https://github.com/iliakan) for some tricks.
-
