@@ -1,6 +1,6 @@
 
 # BemGo
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/werty1001/bemgo/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/werty1001/bemgo/master/LICENSE) [![Github Releases](https://img.shields.io/github/downloads/werty1001/bemgo/total.svg?style=flat-square)](https://github.com/werty1001/bemgo/archive/master.zip)
 
 Starter kit for developing [BEM](https://en.bem.info/) applications using [Gulp](http://gulpjs.com/) and [Webpack](https://webpack.js.org/).
 
@@ -17,12 +17,13 @@ Starter kit for developing [BEM](https://en.bem.info/) applications using [Gulp]
 * Redefinition level for blocks
 * [Jade/Pug](https://pugjs.org) or [Twig](http://twig.sensiolabs.org/) or @include for HTML coding
 * [LESS](http://lesscss.org/) or [Sass](http://sass-lang.com/) or [Stylus](http://stylus-lang.com/) + [PostCSS](http://postcss.org/) for styles
-* ES6 with babel, build JS using Webpack
-* Support for all types of sprites: sprite.svg / sprite.png / sprite.2x.png / symbol.svg
+* Build JS using Webpack 2 with babel 6
+* Generate all types of sprites: sprite.svg / sprite.png / sprite.2x.png / symbol.svg
 * Support JSON data for use in templates
-* Generate favicons and apple touch icons
+* Generate all types of favicons: apple touch icons / regular favicons / windows 8 tile icons / android icons / manifest
 * Creating zip archive with a complete build or development files
 * Nothing unnecessary, in build only those files that are used
+* Support creating files for blocks automatically
 * FTP deploy
 
 and more ...
@@ -32,7 +33,7 @@ and more ...
 ### Install
 > Bemgo depends on [Node.js](https://nodejs.org/) with NPM and [Git](https://git-scm.com/), make sure that it is already installed on your pc.
 
-Clone:
+[Download](https://github.com/werty1001/bemgo/archive/master.zip) or clone:
 ```bash
 git clone https://github.com/werty1001/bemgo.git bemgo && cd bemgo
 ```
@@ -40,12 +41,16 @@ Then install dependencies:
 ```bash
 npm i
 ```
-By default, app folder doesn't exist, you can init new app with simple command:
+By default, app folder doesn't exist, you can init new app with simple command*:
 ```bash
 npm run init
 ```
-> Remember, you first need to edit a **package.json** file and replace init command and specify your repository for clone it!
+> \* Remember, first you need to edit a **package.json** file and replace init command and specify your repository for clone!
 
+Or clone your repository right off:
+```bash
+git clone [your repository] ./app
+```
 ---
 
 ### Commands
@@ -113,12 +118,13 @@ app/
 │   ├── common/ 
 │   │   └── block/ 
 │   │
-│   └── develop/ 
+│   ├── develop/ 
 │   │   └── block/ 
 │   │
 │   └── helpers.css      # Global helpers for styles (optional)
 │
 ├── config.js            # Config (optional)
+│
 └── icon.png             # Icon for generate favicons (optional)
 ```
 
