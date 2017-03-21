@@ -20,7 +20,7 @@ Starter kit for developing [BEM](https://en.bem.info/) applications using [Gulp]
 * Build JS using Webpack 2 with babel 6
 * Generate all types of sprites: sprite.svg / sprite.png / sprite.2x.png / symbol.svg
 * Support JSON data for use in templates
-* Generate all types of favicons: apple touch icons / regular favicons / windows 8 tile icons / android icons / manifest
+* Generate all types of favicons: apple touch icons / windows tile icons / android icons / manifest
 * Creating zip archive with a complete build or development files
 * Nothing unnecessary, in build only those files that are used
 * Support creating files for blocks automatically
@@ -47,7 +47,7 @@ npm run init
 ```
 > \* Remember, first you need to edit a **package.json** file and replace init command and specify your repository for clone!
 
-Or clone your repository right off:
+Or clone your init repository right off:
 ```bash
 git clone [your repository] ./app
 ```
@@ -180,9 +180,11 @@ If app contain a `config.js`, it change default settings:
 
   // Options
   options: {
-    babel: false, // Use babel?
-    bundles: false, // Create bundles for every page?
-    sourcemap: false // Need sourcemaps?
+    cssBundles: false, // Create CSS bundle for every page?
+    jsBundles: false, // Create JS bundle for every page?
+    sourcemap: false, // Need sourcemaps?
+    babel: false, // Use babel in webpack?
+    requireLibs: false
   },
 
   // Redefinition levels order (common first, then develop and last themes )
@@ -209,7 +211,7 @@ If app contain a `config.js`, it change default settings:
     favicons: 'favicons'
   },
 
-  // Generate files for head
+  // Generate favicons
   head: {
     favicons: true,
     androidIcons: false,
@@ -280,11 +282,16 @@ If app contain a `config.js`, it change default settings:
     json: '',
     style: '',
     script: '',
-    template: ''
+    template: '',
+    block: ''
   },
 
   // Main level
   mainLevel: 'develop',
+
+  // Create files automatically
+  autoCreate: false,
+  autoIgnoreBlocks: [],
 
   // HTML attributes for search assets
   assetsAttr: [ 'href', 'src', 'srcset' ]
@@ -308,7 +315,7 @@ In production will be:
 ```
 ---
 ### Symbol
-On development will be used all icons from `img/symbol` folder, but in production build will be used only those icons that are used in HTML code in tag `use` with pattern `#[blockName]__[iconName]`, example:
+On development will be used all icons from `img/symbol` folders, but in production build will be only those icons that are used in HTML code from tag `use` with pattern `#[block name]__[icon name]`, example:
 ```HTML
 <svg class="icon">
     <use xlink:href="#header__account"></use>
