@@ -24,6 +24,7 @@ Starter kit for developing [BEM](https://en.bem.info/) applications using [Gulp]
 * Creating zip archive with a complete build or development files
 * Nothing unnecessary, in build only those files that are used
 * Support creating files for blocks automatically
+* Support creating JS or CSS bundles for every page
 * FTP deploy
 
 and more ...
@@ -45,7 +46,7 @@ By default, app folder doesn't exist, you can init new app with simple command*:
 ```bash
 npm run init
 ```
-> \* Remember, first you need to edit a **package.json** file and replace init command and specify your repository for clone!
+> \* Remember, first you need to edit a **package.json** file and specify a repository for clone!
 
 Or clone your init repository right off:
 ```bash
@@ -158,11 +159,11 @@ block/
 ```
 ---
 ### Usage
-[Config](#config) | [Sprites](#sprites) | [Symbol](#symbol) | [Tasks](#tasks)
+[Config](#config) | [Sprites](#sprites) | [Tasks](#tasks)
 
 ---
 ### Config
-If app contain a `config.js`, it change default settings:
+If app contain a `config.js` file, it change default settings:
 ```JS
 {
 
@@ -180,25 +181,27 @@ If app contain a `config.js`, it change default settings:
 
   // Options
   options: {
-    cssBundles: false, // Create CSS bundle for every page?
-    jsBundles: false, // Create JS bundle for every page?
-    sourcemap: false, // Need sourcemaps?
-    babel: false, // Use babel in webpack?
     requireLibs: false
+    cssBundles: false, // Create CSS bundle for every page?
+    jsBundles: false,  // Create JS bundle for every page?
+    sourcemap: false,  // Need sourcemaps?
+    babel: false,      // Use babel in webpack?
   },
 
-  // Redefinition levels order (common first, then develop and last themes )
+  // Redefinition levels order (common first, then develop )
   levels: {
     common: 1,
-    develop: 2,
-    themes: 3
+    develop: 2
   },
+
+  // Main level
+  mainLevel: 'develop',
 
   // Extnames for search
   extnames: {
     templates: 'html', // html or pug or twig
-    scripts: 'js', // only js
-    styles: 'css' // css or styl or less or scss or sass
+    scripts: 'js',     // only js
+    styles: 'css'      // css or styl or less or scss or sass
   },
 
   // Build structure
@@ -258,9 +261,9 @@ If app contain a `config.js`, it change default settings:
     app: {}
   },
 
-  /* Assets to be used in any case, example:
+  /* Assets and symbol icons to be used in any case, example:
 
-  used: {
+  use: {
     assets: [ 'footer/logo.png' ],
     symbol: [ 'header__tel' ],
     styles: [ 'slick.css' ],
@@ -269,29 +272,28 @@ If app contain a `config.js`, it change default settings:
 
   */
 
-  used: {
+  use: {
     assets: [],
     symbol: [],
     styles: [],
     scripts: []
   },
 
-  // Default content for new files
+  // Default content for new files and block
   add: {
     page: '',
     json: '',
     style: '',
     script: '',
     template: '',
-    block: ''
+    block: '' // Support only this content [fonts:img:assets:json:style:script:template]
   },
-
-  // Main level
-  mainLevel: 'develop',
 
   // Create files automatically
   autoCreate: false,
-  autoIgnoreBlocks: [],
+  autoCreateAdd: [], // Support [ 'style', 'script', 'template' ]
+  autoCreateIgnore: [], // Support strings and RegExp, example: ['html', /fa-/i]
+  autoCreateCheckLevels: [], // If levels contains a file then the new file will not be created 
 
   // HTML attributes for search assets
   assetsAttr: [ 'href', 'src', 'srcset' ]
@@ -313,8 +315,7 @@ In production will be:
     background-position: 0 0;
 }
 ```
----
-### Symbol
+##### Symbol
 On development will be used all icons from `img/symbol` folders, but in production build will be only those icons that are used in HTML code from tag `use` with pattern `#[block name]__[icon name]`, example:
 ```HTML
 <svg class="icon">
