@@ -42,26 +42,25 @@ Then install dependencies:
 ```bash
 npm i
 ```
-By default, app folder doesn't exist, you can init new app with simple command*:
+And start development:
 ```bash
-npm run init
+npm start
 ```
-> \* Remember, first you need to edit a **package.json** file and specify a repository for clone!
 
-Or clone your init repository right off:
-```bash
-git clone [your repository] ./app
-```
+By default, the kit contain simple demo app with HTML and scss files.
+
 ---
 
 ### Commands
 * `npm i` — install dependencies
 * `npm start` — start development
-* `npm run init` — init new APP
+* `npm run init` — clone new repository instead app folder *
 * `npm run do` — run production build
 * `npm run zip` — creating zip archive with a complete build
 * `npm run zip:dev` — creating zip archive with development files
 * `npm run ftp` — run FTP deploy
+
+> \* Change the repository in **package.json**
 
 Also, you can create new blocks and files:
 * `npm run add block [block name]:[file]:[folder]` — add block
@@ -159,13 +158,13 @@ block/
 ```
 ---
 ### Usage
-[Config](#config) | [Sprites](#sprites) | [Tasks](#tasks)
+[Config](#config) | [Templates](#templates) | [Sprites](#sprites) | [Tasks](#tasks)
 
 ---
 ### Config
-If app contain a `config.js` file, it change default settings:
+If app contain a `config.js`, it change default settings:
 ```JS
-{
+module.exports = {
 
   // Data for templates
   app: {
@@ -181,11 +180,11 @@ If app contain a `config.js` file, it change default settings:
 
   // Options
   options: {
-    requireLibs: false
+    requireLibs: false,
     cssBundles: false, // Create CSS bundle for every page?
     jsBundles: false,  // Create JS bundle for every page?
     sourcemap: false,  // Need sourcemaps?
-    babel: false,      // Use babel in webpack?
+    babel: false       // Use babel in webpack?
   },
 
   // Redefinition levels order (common first, then develop )
@@ -199,9 +198,9 @@ If app contain a `config.js` file, it change default settings:
 
   // Extnames for search
   extnames: {
-    templates: 'html', // html or pug or twig
-    scripts: 'js',     // only js
-    styles: 'css'      // css or styl or less or scss or sass
+    templates: '.html', // .html or .pug or .twig
+    scripts: '.js',     // only .js
+    styles: '.css'      // .css or .styl or .less or .scss or .sass
   },
 
   // Build structure
@@ -279,27 +278,48 @@ If app contain a `config.js` file, it change default settings:
     scripts: []
   },
 
-  // Default content for new files and block
+  // Default content for new files and blocks
   add: {
     page: '',
     json: '',
     style: '',
     script: '',
     template: '',
-    block: '' // Support only this content [fonts:img:assets:json:style:script:template]
+    block: '' // Full 'fonts:img:assets:json:style:script:template'
   },
 
   // Create files automatically
   autoCreate: false,
-  autoCreateAdd: [], // Support [ 'style', 'script', 'template' ]
-  autoCreateIgnore: [], // Support strings and RegExp, example: ['html', /fa-/i]
-  autoCreateCheckLevels: [], // If levels contains a file then the new file will not be created 
+  autoCreateAdd: [],         // Support [ 'style', 'script', 'template' ]
+  autoCreateIgnore: [],      // Support string and RegExp, example: ['html', /fa-/i]
+  autoCreateCheckLevels: [], // New file will not be created if level already contain it
 
   // HTML attributes for search assets
   assetsAttr: [ 'href', 'src', 'srcset' ]
 
-}
+};
 ```
+---
+### Templates
+In templates you can use JSON data from blocks and some settings from app config:
+```JS
+global.paths    // Build paths
+global.blocks   // Data from all blocks
+global.app      // App setting from config
+```
+For example, you have **nav** block with `data.json`, in templates you can get this data:
+```JS
+global.blocks.nav
+```
+
+##### Pug
+* By default, the kit has [bempug](https://github.com/werty1001/bempug) module for writing code on BEM methodology, just include it.
+* Also, you can include list of all blocks, which contain .pug file with mixin.
+```Pug
+include ../../node_modules/bempug/index
+include ../../core/temp/blocks
+```
+
 ---
 ### Sprites
 For generate sprites (except [symbol](#symbol)) used PostCSS  [plugin](https://github.com/2createStudio/postcss-sprites) and it run only in production build, example:
@@ -316,7 +336,7 @@ In production will be:
 }
 ```
 ##### Symbol
-On development will be used all icons from `img/symbol` folders, but in production build will be only those icons that are used in HTML code from tag `use` with pattern `#[block name]__[icon name]`, example:
+On development will be used all icons from `img/symbol` folders, but in production build will be only those icons that are used in HTML code from tag `use` with pattern `#[block-name]__[icon-name]`, example:
 ```HTML
 <svg class="icon">
     <use xlink:href="#header__account"></use>
@@ -344,7 +364,7 @@ After that, you can use command `npm start mytask` for call it.
 
 ---
 ### Changelog
-**0.1.0**
+#### 0.1.0
 * beta version
 ---
 
