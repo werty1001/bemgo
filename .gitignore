@@ -1,3 +1,9 @@
+# Diff
+Thumbs.db
+Desktop.ini
+.DS_Store*
+ehthumbs.db
+
 # Logs
 logs
 *.log
@@ -28,10 +34,14 @@ build/Release
 
 # Dependency directories
 node_modules
+bower_components
 jspm_packages
+dist
+core/temp
 
 # Optional npm cache directory
 .npm
+.npmignore
 
 # Optional REPL history
 .node_repl_history

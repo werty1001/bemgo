@@ -1,0 +1,153 @@
+
+
+//- Include helpers
+
+include /node_modules/bempug/index
+include /core/temp/blocks
+
+
+//- New line for pretty output
+
+- var n = global.newLine, nn = n + n, nnn = n + n + n;
+
+
+//- Page data
+
+block data
+
+
+//- Layout
+
+if !page
+	block content
+else
+	doctype
+	+b( 'html', 'no-js', 'html' )(lang=global.app.lang)
+		head
+			meta(charset='utf-8')
+			meta(http-equiv='X-UA-Compatible' content='IE=edge')
+
+			if global.app.responsive
+				meta(name='HandheldFriendly' content='true')
+				meta(name='MobileOptimized' content='width')
+				meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+			else
+				meta(name='viewport' content='width=1024')
+
+			meta(name='format-detection' content='telephone=no')
+			meta(name='format-detection' content='address=no')
+			meta(name='apple-mobile-web-app-capable' content='yes')
+			meta(name='apple-mobile-web-app-status-bar-style' content='black-translucent')
+
+			= n
+
+			title=( page.title || 'Title' )
+			meta(name='description' content=( page.description || 'Description' ))
+
+			= n
+
+			- page.styles.unshift( ( global.cssBundles ? page.path : 'app' ) + ( global.isDevelopment ? '.css' : '.min.css' ) );
+
+			// Styles 
+			each href in page.styles
+				link(rel='stylesheet' href=( BEMPUG.isExternal( href ) ? href : global.paths.styles + '/' + href ))
+
+			if global.app.preloader
+				= n
+
+				// Hide preloader if no JS 
+				noscript: style .page__preloader{display:none;}
+
+
+			if !global.isDevelopment && global.head.favicons
+				= n
+
+				// Favicons 
+				link(rel='shortcut icon' href=`${global.paths.favicons}/favicon.ico` type='image/x-icon')
+
+				each icon in ['16x16','32x32','96x96','230x230']
+					link(rel='icon' href=`${global.paths.favicons}/favicon-${icon}.png` sizes=icon type='image/png')
+
+
+			if !global.isDevelopment && global.head.androidIcons
+				= n
+
+				each icon in ['36x36','48x48','72x72','96x96','144x144','192x192','256x256','384x384','512x512']
+					link(rel='icon' href=`${global.paths.favicons}/android-chrome-${icon}.png` sizes=icon type='image/png')
+
+
+			if !global.isDevelopment && global.head.appleTouchIcons
+				= n
+
+				each icon in ['57x57','114x114','60x60','120x120','72x72','144x144','76x76','152x152','180x180']
+					link(rel='apple-touch-icon' href=`${global.paths.favicons}/apple-touch-icon-${icon}.png` sizes=icon)
+
+
+			if !global.isDevelopment && global.head.safariPinned
+				= n
+
+				//- The SVG file must be a single layer and the viewBox attribute must be set to "0 0 16 16".
+
+				// Safari Pinned Tab Icon 
+				link(rel='mask-icon' href=`${global.paths.favicons}/safari-pinned-tab.svg` color=global.head.safariPinned)
+
+
+			if !global.isDevelopment && global.head.manifest
+				= n
+
+				// Manifest 
+				link(rel='manifest' href=`${global.paths.favicons}/manifest.json`)
+
+
+			if !global.isDevelopment && global.head.msapplication
+				= n
+
+				// For Windows 
+				meta(name='application-name' content=global.app.name)
+				meta(name='msapplication-tooltip' content=global.app.description)
+				meta(name='msapplication-starturl' content=`http://${global.app.domain}/`)
+				meta(name='msapplication-TileColor' content='#ffffff')
+				meta(name='msapplication-tap-highlight' content='no')
+
+				each icon, i in ['144x144','70x70','150x150','310x310','310x150']
+					- var mstile = i > 0 ? ( icon === '310x150' ? 'wide' : 'square') + icon + 'logo' : 'TileImage';
+					meta(name=`msapplication-${mstile}` content=`${global.paths.favicons}/mstile-${icon}.png`)
+
+
+		+b( 'page', page.bem, 'body' )
+
+
+			//- Preloader
+
+			if global.app.preloader
+
+				= nn
+				// Preloader 
+				+b( 'preloader', {e: '&|active'} )
+
+
+			//- Content
+
+			block content
+
+
+			//- Scripts
+			= nnn
+
+			if global.app.jquery
+
+				// jQuery 
+				script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js')
+
+				= n
+
+			- page.scripts.push( ( global.jsBundles ? page.path : 'app' ) + ( global.isDevelopment ? '.js' : '.min.js' ) );
+
+
+			// Scripts 
+			each src in page.scripts
+				script(src=( BEMPUG.isExternal( src ) ? src : global.paths.scripts + '/' + src ))
+
+
+			= nn
+

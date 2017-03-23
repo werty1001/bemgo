@@ -47,7 +47,7 @@ And start development:
 npm start
 ```
 
-By default, the kit contain simple demo app with HTML and scss files.
+By default, the kit contain simple demo app with pug and scss files.
 
 ---
 
@@ -63,12 +63,12 @@ By default, the kit contain simple demo app with HTML and scss files.
 > \* Change the repository in **package.json**
 
 Also, you can create new blocks and files:
-* `npm run add block [block name]:[file]:[folder]` — add block
-* `npm run add style [style name]` — add style
-* `npm run add page [page name]` — add page
-* `npm run add json [block name]` — add data.json
-* `npm run add script [script name]` — add script
-* `npm run add template [template name]` — add template
+* `npm run add block [block-name]:[file]:[folder]` — add block
+* `npm run add style [style-name]` — add style
+* `npm run add page [page-name]` — add page
+* `npm run add json [block-name]` — add data.json
+* `npm run add script [script-name]` — add script
+* `npm run add template [template-name]` — add template
 
 #### Examples:
 
@@ -180,7 +180,6 @@ module.exports = {
 
   // Options
   options: {
-    requireLibs: false,
     cssBundles: false, // Create CSS bundle for every page?
     jsBundles: false,  // Create JS bundle for every page?
     sourcemap: false,  // Need sourcemaps?
@@ -290,9 +289,9 @@ module.exports = {
 
   // Create files automatically
   autoCreate: false,
-  autoCreateAdd: [],         // Support [ 'style', 'script', 'template' ]
-  autoCreateIgnore: [],      // Support string and RegExp, example: ['html', /fa-/i]
-  autoCreateCheckLevels: [], // New file will not be created if level already contain it
+  autoCreateAdd: [],               // Support [ 'style', 'script', 'template' ]
+  autoCreateIgnore: [ 'symbol' ],  // Support string and RegExp, example: ['html', /fa-/i]
+  autoCreateCheckLevels: [],       // New file will not be created if level already contain it
 
   // HTML attributes for search assets
   assetsAttr: [ 'href', 'src', 'srcset' ]
@@ -301,7 +300,7 @@ module.exports = {
 ```
 ---
 ### Templates
-In templates you can use JSON data from blocks and some settings from app config:
+In templates you can use data from blocks and some settings from app config:
 ```JS
 global.paths    // Build paths
 global.blocks   // Data from all blocks
@@ -310,14 +309,6 @@ global.app      // App setting from config
 For example, you have **nav** block with `data.json`, in templates you can get this data:
 ```JS
 global.blocks.nav
-```
-
-##### Pug
-* By default, the kit has [bempug](https://github.com/werty1001/bempug) module for writing code on BEM methodology, just include it.
-* Also, you can include list of all blocks, which contain .pug file with mixin.
-```Pug
-include ../../node_modules/bempug/index
-include ../../core/temp/blocks
 ```
 
 ---
@@ -335,7 +326,7 @@ In production will be:
     background-position: 0 0;
 }
 ```
-##### Symbol
+#### Symbol
 On development will be used all icons from `img/symbol` folders, but in production build will be only those icons that are used in HTML code from tag `use` with pattern `#[block-name]__[icon-name]`, example:
 ```HTML
 <svg class="icon">

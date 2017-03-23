@@ -1,0 +1,26 @@
+{
+	"rules": {
+		"at-rule-empty-line-before": "always",
+		"at-rule-semicolon-newline-after": "always",
+		"block-closing-brace-newline-after": "never",
+		"block-closing-brace-newline-before": "never",
+		"block-opening-brace-newline-after": "never",
+		"block-opening-brace-newline-before": "never",
+		"block-opening-brace-space-after": "always",
+		"block-opening-brace-space-before": "always",
+		"color-hex-case": "lower",
+		"color-hex-length": "short",
+		"declaration-colon-space-after": "always",
+		"declaration-colon-space-before": "never",
+		"indentation": "tab",
+		"length-zero-no-unit": true,
+		"number-leading-zero": "never",
+		"number-no-trailing-zeros": true,
+		"selector-combinator-space-after": "always",
+		"selector-combinator-space-before": "always",
+		"selector-list-comma-newline-after": "always",
+		"selector-list-comma-newline-before": "never-multi-line",
+		"shorthand-property-no-redundant-values": false,
+		"string-quotes": "double"
+	}
+}
