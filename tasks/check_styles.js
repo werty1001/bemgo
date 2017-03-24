@@ -79,14 +79,14 @@ module.exports = ( task, core ) => {
 
 	Object.keys( imports ).forEach( ( page ) => {
 
-		let content = ( typeof helper === 'string' ) ? helper : '',
+		let content = ( typeof helper === 'string' ) ? helper.replace( /\\/g, '\/' ) : '',
 			file = core.path.temp( page + core.config.extnames.styles );
 
 			imports[page].forEach( ( key ) => {
 
 				let prefix = core.config.extnames.styles === '.less' ? ' (less)' : '';
 
-					content += `${content === '' ? '' : '\n'}@import${prefix} '${key}';`;
+					content += `${content === '' ? '' : '\n'}@import${prefix} '${key.replace( /\\/g, '\/' )}';`;
 			});
 
 			core.writeFile( file, content );

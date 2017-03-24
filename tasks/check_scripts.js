@@ -59,7 +59,7 @@ module.exports = ( task, core ) => {
 
 		let content = '', file = core.path.temp( page + core.config.extnames.scripts );
 
-			imports[page].forEach( ( key ) => content += `${content === '' ? '' : '\n'}require('${key}');` );
+			imports[page].forEach( ( key ) => content += `${content === '' ? '' : '\n'}require('${key.replace( /\\/g, '\/' )}');` );
 
 			core.writeFile( file, content );
 

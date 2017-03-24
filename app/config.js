@@ -40,6 +40,6 @@ module.exports = {
 
 	autoCreate: true,
 	autoCreateAdd: [ 'style' ],
-	autoCreateIgnore: [ 'html' ],
+	autoCreateIgnore: [ 'html' ]
 
 };
