@@ -1,6 +1,6 @@
 
 # BemGo
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/werty1001/bemgo/master/LICENSE) [![Github Releases](https://img.shields.io/github/downloads/werty1001/bemgo/total.svg?style=flat-square)](https://github.com/werty1001/bemgo/archive/master.zip)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/werty1001/bemgo/master/LICENSE)
 
 Starter kit for developing [BEM](https://en.bem.info/) applications using [Gulp](http://gulpjs.com/) and [Webpack](https://webpack.js.org/).
 
