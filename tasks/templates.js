@@ -16,9 +16,7 @@ module.exports = ( task, core ) => {
 
 		app: core.config.app,
 		head: core.config.head,
-		isDevelopment: core.isDevelopment,
-		cssBundles: core.config.options.cssBundles,
-		jsBundles: core.config.options.jsBundles,
+		options: core.config.options,
 		paths: {
 			root: './',
 			styles: './' + core.config.dist.styles,
@@ -26,7 +24,8 @@ module.exports = ( task, core ) => {
 			scripts: './' + core.config.dist.scripts,
 			favicons: './' + core.config.dist.favicons
 		},
-		blocks: core.readBlocks()
+		blocks: core.readBlocks(),
+		isDevelopment: core.isDevelopment
 
 	};
 

@@ -46,7 +46,7 @@ else
 
 			= n
 
-			- page.styles.unshift( ( global.cssBundles ? page.path : 'app' ) + ( global.isDevelopment ? '.css' : '.min.css' ) );
+			- page.styles.unshift( ( global.options.cssBundles ? page.path : 'app' ) + ( global.isDevelopment ? '.css' : '.min.css' ) );
 
 			// Styles 
 			each href in page.styles
@@ -141,7 +141,7 @@ else
 
 				= n
 
-			- page.scripts.push( ( global.jsBundles ? page.path : 'app' ) + ( global.isDevelopment ? '.js' : '.min.js' ) );
+			- page.scripts.push( ( global.options.jsBundles ? page.path : 'app' ) + ( global.isDevelopment ? '.js' : '.min.js' ) );
 
 
 			// Scripts 
