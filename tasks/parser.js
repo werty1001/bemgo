@@ -79,7 +79,7 @@ module.exports = ( task, core ) => {
 
 				if ( tag === 'script' ) {
 
-					if ( /^(?:https?\:)?\/\//i.test( attrs.src ) ) return;
+					if ( ! attrs.src || /^(?:https?\:)?\/\//i.test( attrs.src ) ) return;
 					
 					let file = core.getBasename( attrs.src, true );
 
