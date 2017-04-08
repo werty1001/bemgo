@@ -249,7 +249,7 @@ module.exports = {
       content__section: ''
     },
     index: {
-      slider: 'home--slider'
+      slider: 'slider--home'
     }
   }
 
