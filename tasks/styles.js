@@ -100,6 +100,11 @@ module.exports = ( task, core ) => {
 
 		require( 'postcss-url' )({
 			url: core.editUrl
+		}),
+
+		require( 'autoprefixer' )({
+			remove: false,
+			browsers: ['last 5 versions', 'ie 10', 'ie 11']
 		})
 
 	);
@@ -124,11 +129,6 @@ module.exports = ( task, core ) => {
 				}
 			},
 			filterBy: ( img ) => img.url.indexOf( 'img/sprite/' ) === -1 ? Promise.reject() : Promise.resolve()
-		}),
-
-		require( 'autoprefixer' )({
-			remove: false,
-			browsers: ['last 5 versions', 'ie 10', 'ie 11']
 		}),
 
 		require( 'css-mqpacker' ),
