@@ -121,7 +121,7 @@ app/
 │   ├── develop/ 
 │   │   └── block/ 
 │   │
-│   └── helpers.css      # Global helpers for styles (optional)
+│   └── global.css       # Global styles (optional)
 │
 ├── config.js            # Config (optional)
 │
