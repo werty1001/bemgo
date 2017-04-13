@@ -79,7 +79,7 @@ module.exports = ( task, core ) => {
 
 		if ( ! err ) err = stats.toJson().errors[0];
 
-		cb( err ? err : '' );
+		cb( !core.isDevelopment && err ? err : '' );
 
 	});
 
