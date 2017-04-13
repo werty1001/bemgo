@@ -54,7 +54,7 @@
     "postcss-import": "^9.1.0",
     "postcss-sprites": "^4.2.0",
     "postcss-url": "^5.1.2",
-    "stylefmt": "^5.3.0",
+    "stylefmt": "^5.3.2",
     "vinyl-ftp": "^0.6.0",
     "webpack": "^2.2.1"
   }
