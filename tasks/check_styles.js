@@ -7,7 +7,7 @@
 module.exports = ( task, core ) => {
 
 
-	let imports = {}, helper = 'helpers' + core.config.extnames.styles,
+	let imports = {}, helper = 'global' + core.config.extnames.styles,
 		relative = core.path.relative( core.path.TEMP, core.path.BLOCKS );
 
 
