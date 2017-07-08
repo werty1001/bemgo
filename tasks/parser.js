@@ -187,7 +187,7 @@ module.exports = ( task, core ) => {
 
 	// Add symbol block
 
-	if ( ! core.config.blocks.app.symbol && ( core.isDevelopment || core.used.symbol > 0 ) ) core.config.blocks.app.symbol = '';
+	if ( ! core.config.blocks.app.symbol && ( core.isDevelopment || core.used.symbol.length > 0 ) ) core.config.blocks.app.symbol = '';
 
 
 	// Add blocks from config
