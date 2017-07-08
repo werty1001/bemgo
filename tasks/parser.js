@@ -326,10 +326,19 @@ module.exports = ( task, core ) => {
 			let block = core.bem.getBlock( node ),
 				levels = core.config.autoCreateCheckLevels,
 				nodes = [node].concat( core.tree.app[node] ),
+				checkNodes = [],
+				add = {};
+
+				nodes.forEach( ( el ) => {
+
+					if ( ! core.isIgnoreNode( el ) ) checkNodes.push( el );
+
+				});
+
 				add = {
-					style: nodes,
-					script: nodes,
-					template: nodes
+					style: checkNodes,
+					script: checkNodes,
+					template: checkNodes
 				};
 
 				if ( levels.length > 0 ) {
@@ -348,7 +357,7 @@ module.exports = ( task, core ) => {
 
 					levels.forEach( ( level ) => {
 
-						nodes.forEach( ( el ) => {
+						checkNodes.forEach( ( el ) => {
 
 							let dir = core.path.blocks( core.path.join( level, block ) );
 
@@ -364,7 +373,7 @@ module.exports = ( task, core ) => {
 					});
 
 					Object.keys( add ).forEach( ( key ) => {
-						add[key] = [].concat( nodes.filter( val => ignore[key].indexOf( val ) < 0 ) );
+						add[key] = [].concat( checkNodes.filter( val => ignore[key].indexOf( val ) < 0 ) );
 					});
 
 				}
