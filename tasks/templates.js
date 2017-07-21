@@ -19,6 +19,7 @@ module.exports = ( task, core ) => {
 		options: core.config.options,
 		paths: {
 			root: './',
+			img: './' + core.config.dist.img,
 			styles: './' + core.config.dist.styles,
 			static: './' + core.config.dist.static,
 			scripts: './' + core.config.dist.scripts,
