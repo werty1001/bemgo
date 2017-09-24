@@ -500,7 +500,7 @@ core.readBlocks = () => {
 
 			}
 
-			if ( map ) core.writeFile( core.path.temp( 'blocks' + core.config.extnames.templates ), map );
+			core.writeFile( core.path.temp( 'blocks' + core.config.extnames.templates ), map );
 
 			try {
 
