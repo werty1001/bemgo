@@ -522,7 +522,7 @@ core.readBlocks = () => {
 core.addFile = ( data, type ) => {
 
 	let extnames = {
-		json: 'json',
+		json: '.json',
 		style: core.config.extnames.styles,
 		script: core.config.extnames.scripts,
 		template: core.config.extnames.templates,
