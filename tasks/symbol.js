@@ -37,7 +37,7 @@ module.exports = ( task, core ) => {
 					xmlDeclaration: false,
 					doctypeDeclaration: false,
 					rootAttributes: {
-						style: 'display:none;',
+						style: 'position:absolute;top:0;left:0;width:1px;height:1px;visibility:hidden;opacity:0;',
 						'aria-hidden': 'true'
 					}
 				}
