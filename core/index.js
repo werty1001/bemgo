@@ -177,8 +177,10 @@ core.bem = {
 	},
 
 	delModifier: function( cls ) {
-		let sep = /([a-zA-Z0-9])--([a-zA-Z0-9])/i.test( cls ) ? '--' : '_';
-		return cls.split( sep )[0];
+		if ( /([a-zA-Z0-9])--([a-zA-Z0-9])/i.test( cls ) ) return cls.split( '--' )[0];
+		let isElement = cls.match( /^[a-zA-Z0-9-]+__[a-zA-Z0-9-]+/ )
+		if ( isElement ) return isElement[0]
+		return cls.split( '_' )[0]
 	},
 
 	getBlock: function( cls ) {
