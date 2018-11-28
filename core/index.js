@@ -411,7 +411,7 @@ core.sassResolver = function( url, prev, done ) {
 
 core.editUrl = ( url ) => {
 
-	if ( ! url || /^(?:https?\:)?\/\//i.test( url ) || url.indexOf( 'data:' ) === 0 ) return;
+	if ( ! url || /^(?:https?\:)?\/\//i.test( url ) || url.indexOf( 'data:' ) === 0 || url.charAt(0) === '#' ) return;
 
 	let array = url.split( path.sep ),
 		block = array[ array.length - 3 ],
