@@ -4,7 +4,7 @@
 
 # ![BemGo](https://werty1001.github.io/bemgo.svg)
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/werty1001/bemgo/master/LICENSE) ![](https://img.shields.io/github/languages/count/werty1001/bemgo.svg?style=flat-square) ![](https://img.shields.io/github/repo-size/werty1001/bemgo.svg?style=flat-square) ![](https://img.shields.io/travis/werty1001/bemgo.svg?style=flat-square)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/werty1001/bemgo/master/LICENSE) ![](https://img.shields.io/github/repo-size/werty1001/bemgo.svg?style=flat-square) ![](https://img.shields.io/github/stars/werty1001/bemgo.svg?style=flat-square) ![](https://img.shields.io/github/forks/werty1001/bemgo.svg?style=flat-square) ![](https://img.shields.io/travis/werty1001/bemgo.svg?style=flat-square)
 
 Сборка упрощает и ускоряет процесс разработки проектов по методологии [БЭМ](https://en.bem.info/), под капотом [Gulp](http://gulpjs.com/).
 
@@ -160,7 +160,7 @@ block/
 * [SVG symbols](#svg-symbols)
 * [Зависимости блока](#зависимости-блока)
 * [Автоматическое создание файлов и блоков](#автоматическое-создание-файлов-и-блоков)
-* [Генерация Favicons](#генерация-favicons)
+* [Создание Favicons](#создание-favicons)
 * [Уровни переопределения](#уровни-переопределения)
 * [Создание файлов и блоков из консоли](#создание-файлов-и-блоков-из-консоли)
 * [Стартовый контент для новых файлов](#стартовый-контент-для-новых-файлов)
@@ -226,7 +226,7 @@ module.exports = {
   fastMake: {},
 
   // Настройки для создания Favicons (подробности ниже)
-  generateFavicons: {},
+  favicons: {},
 
   // Данные для манифеста (подробности ниже)
   manifest: {},
@@ -256,14 +256,32 @@ use: {
 ```
 Теперь сборка будет искать pug файлы.  
 ### JSON данные в разметке
-У каждого блока может быть файл данных **data.json**, эти данные доступны в разметке.  
-Допустим у вас есть блок **nav** c json файлом, эти данные легко получить из специального объекта **global**:
-```
-// берем данные из nav/data.json
+У каждого блока может быть файл данных **data.json**, эти данные доступны в разметке, например у нас есть блок **message** c json файлом:
+```json
+// message/data.json
 
-global.jsons.nav // в Twig
-global.jsons.nav // в PUG
-@@global.jsons.nav // в HTML
+{
+  "greeting": "Привет, мир!"
+}
+```
+Эти данные легко получить из специального объекта **global**
+```pug
+// page.pug
+
+h1= global.jsons.message.greeting
+
+```
+```html
+// page.html
+
+<h1>@@global.jsons.message.greeting</h1>
+
+```
+```twig
+// page.twig
+
+<h1>{{ global.jsons.message.greeting }}</h1>
+
 ```
 ### Плейсхолдеры для путей
 У каждого блока своя папка со статикой, поэтому вам необходимо указывать плейсхолдеры, чтобы было понятно у какого блока нужно искать конкретный файл.
@@ -335,7 +353,7 @@ use: {
 build: {
   ...
 
-  globalStyles: 'app/blocks/global.scss' // Путь до файла с переменными
+  globalStyles: 'app/blocks/global.styl' // Путь от корня сборки до файла с переменными
 },
 ```
 
@@ -344,7 +362,7 @@ build: {
 </p>
 
 # Растовые и векторные спрайты
-Вы легко можете собирать векторные спрайты, а также растовые спрайты разной плотности (2x), для этого используется замечательный [PostCSS плагин](https://github.com/2createStudio/postcss-sprites).
+Вы легко можете собирать векторные спрайты, а также растовые спрайты для разных экранов, для этого используется замечательный [PostCSS плагин](https://github.com/2createStudio/postcss-sprites).
 > Важно, в режиме разработки спрайты не создаются, только при финальной сборке! 
 
 Все иконки для спрайта необходимо хранить в отдельной директории блока (img/sprite) и просто использовать как обычные изображения, при финальной сборке все иконки из этой директории будут собраны в спрайт.
@@ -354,11 +372,11 @@ build: {
 .zoom {
   width: 24px;
   height: 24px;
-  background: url('img/sprite/zoom.png') no-repeat top center;
+  background: url('img/sprite/zoom.png') no-repeat center;
 }
 
 .zoom_active {
-  background: url('img/sprite/zoom_active.png') no-repeat top center;
+  background: url('img/sprite/zoom_active.png') no-repeat center;
 }
 ```
 В итоге в финальной сборке будет так:
@@ -370,17 +388,19 @@ build: {
   height: 24px;
   background-image: url('img/sprite.png');
   background-position: 0 0;
+  background-size: 48px 24px;
 }
 
 .zoom_active {
   background-image: url('img/sprite.png');
   background-position: -24px 0;
+  background-size: 48px 24px;
 }
 ```
 Раньше приходилось создавать карту с переменными для каждого препроцессора, а теперь простой и понятный CSS код, а все лишнее под капотом.
 
 ### Для ретины
-Можно создавать спрайты разной плотности, например 2x, для этого достаточно сделать иконку в двойном размере и добавить ключ @2x перед расширением:
+Можно создавать спрайты для экранов с высокой плотностью пикселей (2x, 3x, 4x и.т.д), для этого достаточно сделать иконку в нужном размере и добавить плотность перед расширением файла, например для 2x и 3x:
 ```css
 /* zoom/zoom.css */
 
@@ -392,19 +412,25 @@ build: {
 
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .zoom {
-    background: url('img/sprite/zoom@2x.png') no-repeat top center;
-    background-size: 24px 24px;
+    background: url('img/sprite/zoom@2x.png') no-repeat center/cover;
+  }
+}
+
+@media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 288dpi) {
+  .zoom {
+    background: url('img/sprite/zoom@3x.png') no-repeat center/cover;
   }
 }
 ```
+В финальной сборке будет три спрайта – обычный и для ретина экранов (с 192dpi и 288dpi).
 ### Вектор
-Одновременно с растовыми спрайтами можно создавать и векторные, принцип тот же, только SVG:
+Одновременно с растовыми спрайтами можно создавать и векторные, принцип тот же, только с SVG иконками:
 ```css
 
 .zoom {
   width: 24px;
   height: 24px;
-  background: url('img/sprite/zoom.svg') no-repeat top center;
+  background: url('img/sprite/zoom.svg') no-repeat center;
 }
 ```
 
@@ -417,7 +443,7 @@ build: {
 ```
 card/symbols/arrow.svg -> #card__arrow
 ```
-### Подключение SVG спрайта
+### Подключение SVG
 Есть несколько вариантов подключения SVG, можно встроить прямо в HTML код, для этого вам нужно указать специальный комментарий:
 ```html
 <!-- BEMGO:symbol -->
@@ -434,10 +460,11 @@ card/symbols/arrow.svg -> #card__arrow
   <use xlink:href="@symbol#card__arrow"></use>
 </svg>
 ```
-### Трансформация SVG спрайта
+### Трансформация SVG
 Если в коде страницы будет найдена хотя-бы одна SVG иконка, то сборка будет искать специальный блок symbol на основном уровне разработки (св-во **mainLevel** в [config.js](#настройки-приложения)), вы можете создать два файла `prepend.svg` и `append.svg` внутри этого блока и тогда содержимое этих файлов будет добавлено в тело SVG (в начало и в конец).
-### Сборка SVG спрайта
-В режиме разработки все иконки со всех блоков будут добавлены в спрайт, но в финальную сборку попадут только те иконки, которые есть в вашем коде (с правильными ID - blockName__iconName). Также вы можете добавить специальный ключ @always перед расширением иконки, тогда она попадет в спрайт в любом случае:
+### Сборка иконок для SVG
+В режиме разработки все иконки со всех блоков будут добавлены в спрайт, но в финальную сборку попадут только те иконки, которые есть в вашем коде (с «правильными» ID).
+> Также вы можете добавить специальный ключ @always перед расширением иконки, тогда она попадет в спрайт в любом случае:
 ```
 card/symbols/arrow@always.svg
 ```
@@ -511,9 +538,8 @@ module.exports = {
 ```
 Теперь при использовании блока slider на странице будет подключена библиотека jQuery и плагин slick.min.js, все картинки и шрифты из slick.css автоматом подтянутся в сборку.
 
-> Если у модуля не указано свойство from, то поиск файлов будет проходить в самом блоке (в папке assets).  
-
-> Файлы из CDN нельзя импортировать, только подключать как внешние файлы.
+* Если у модуля не указано свойство from, то поиск файлов будет проходить в самом блоке (в папке assets).
+* Файлы из CDN нельзя импортировать, только подключать как внешние файлы.
 
 Если вам требуется подключить JS файл асинхронно, то просто добавьте на конце @async или @defer:
 ```js
@@ -555,6 +581,7 @@ module.exports = {
 
 }
 ```
+Простая проверка в одну строку решает проблему, теперь модуль будет подтягиваться только в нужный момент.
 
 <p align="center">
   <a href="#навигация"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
@@ -606,13 +633,13 @@ autoCreate: {
 },
 
 ```
-Регулярные выражения позволят вам тонко настроить создание файлов и блоков.
+На самом деле, мы могли просто запретить модификаторы также как и элементы, но для демонстрации всех возможностей пусть будет так :)
 
 <p align="center">
   <a href="#навигация"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
 </p>
 
-# Генерация Favicons
+# Создание Favicons
 
 1. Для начала вам необходимо поместить свою иконку в корень папки разработки (**app/icon.png**).
 2. Далее в конфинге приложения [config.js](#настройки-приложения) нужно указать какие иконки нужно создать:
@@ -622,7 +649,7 @@ autoCreate: {
 ```js
 // app/config.js
 
-generateFavicons: {
+favicons: {
   android: false,
   appleIcon: false,
   appleStartup: false,
@@ -844,12 +871,14 @@ module.exports = {
 ```
 0. [ del ]
 1. [ compile:templates ]
-2. [ generate:symbol, compile:styles, compile:scripts, generate:favicons ]
-3. [ copy:assets, copy:fonts, copy:imgs, inject:data ]
+2. [ generate:symbol, compile:styles, compile:scripts, generate:favicons, copy:assets ]
+3. [ copy:fonts, copy:imgs, inject:data ]
 4. [ browserSync:watch ]
 
 5. [ mytask ] // наша новая задача будет запущена последней
 ```
+> Важно! Порядок дефолтных тасков лучше не менять, иначе нормальная работа не гарантируется.
+
 Также задача может содержать функцию watch, которая должна возвращать объект с настройками для слежения:
 ```js
 watch () {
