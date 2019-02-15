@@ -32,7 +32,7 @@
 ### Навигация
 * [Установка](#установка)
 * [Основные команды](#основные-команды)
-* [Структура сборки](#структура-сборки)
+* [Структура](#структура)
 * [Описание работы](#описание-работы)
 * [Вопросы и ответы](#вопросы-и-ответы)
 * [Changelog](#changelog)
@@ -77,7 +77,7 @@ npm start
   <a href="#навигация"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
 </p>
 
-# Структура сборки
+# Структура
 
 ```
 bemgo/
@@ -164,6 +164,7 @@ block/
 * [Уровни переопределения](#уровни-переопределения)
 * [Создание файлов и блоков из консоли](#создание-файлов-и-блоков-из-консоли)
 * [Стартовый контент для новых файлов](#стартовый-контент-для-новых-файлов)
+* [Создание бандлов](#создание-бандлов)
 * [Создание нового таска](#создание-нового-таска)
 
 <p align="center">
@@ -181,8 +182,8 @@ module.exports = {
   // Используемые технологии
   use: {
     templates: '.html', // шаблонизатор, можно '.html' или '.pug' или '.twig'
-    scripts: '.js',    // скрипты, только '.js'
-    styles: '.css',   // препроцессор, можно '.css' или '.styl' или '.less' или '.scss' или '.sass'
+    scripts: '.js',     // скрипты, только '.js'
+    styles: '.css',     // препроцессор, можно '.css' или '.styl' или '.less' или '.scss' или '.sass'
   },
 
   // Основные настройки сборки
@@ -190,6 +191,7 @@ module.exports = {
 
     autoprefixer: [ 'last 3 versions' ], // настройки автопрефиксера
     babel: false, // нужен ли транспайлер Babel для JS
+    BEML: false, // нужен ли BEM постпроцессор в HTML
     
     bundles: [], // сборка CSS/JS бандлов для страниц, можно [ 'css', 'js' ]
     sourcemaps: [], // нужны ли sourcemap'ы, можно [ 'css', 'js' ]
@@ -264,7 +266,7 @@ use: {
   "greeting": "Привет, мир!"
 }
 ```
-Эти данные легко получить из специального объекта **global**
+Эти данные легко получить из специального объекта **global.jsons**
 ```pug
 // page.pug
 
@@ -331,6 +333,41 @@ build: {
 ### Расширенные возможности HTML
 Можно отказаться от шаблонизаторов и писать разметку на обычном HTML, плюс в сборке встроен дополнительный плагин, который позволяет загружать куски HTML кода, использовать переменные и циклы, а также условные конструкции, подробнее о работе этого плагина можно [узнать тут](https://www.npmjs.com/package/gulp-file-include).
 
+### БЭМ разметка
+Если вы не любите писать БЭМ код руками, то в сборке сразу есть несколько плагинов, которые упрощают эту задачу.
+* [Bemto](https://github.com/kizu/bemto) - для Pug
+```pug
+include node_modules/bemto.pug/bemto
+
++b.block
+  +e.element Text
+```
+
+* [BemPug](https://github.com/werty1001/bempug) - для Pug
+```pug
+include node_modules/bempug/index
+
++b( 'block' )
+  +e( 'element' ) Text
+```
+
+* [BEML](https://github.com/zenwalker/node-beml) - универсальный плагин, его можно активировать в [config.js](#настройки-приложения)
+```html
+<div block="block">
+  <div elem="element">Text</div>
+</div>
+```
+```js
+// app/config.js
+
+build: {
+  ...
+
+  BEML: true,
+},
+```
+
+
 <p align="center">
   <a href="#навигация"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
 </p>
@@ -356,6 +393,15 @@ build: {
   globalStyles: 'app/blocks/global.styl' // Путь от корня сборки до файла с переменными
 },
 ```
+
+### PostCSS
+В сборку встроены следующие плагины:
+* [autoprefixer](https://github.com/postcss/autoprefixer) - работает всегда
+* [postcss-sprites](https://github.com/2createStudio/postcss-sprites) - только в финальной сборке
+* [stylefmt](https://github.com/morishitter/stylefmt) - только в финальной сборке
+
+Дополнительные плагины вы всегда сможете встроить самостоятельно это несложно.
+
 
 <p align="center">
   <a href="#навигация"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
@@ -422,7 +468,7 @@ build: {
   }
 }
 ```
-В финальной сборке будет три спрайта – обычный и для ретина экранов (с 192dpi и 288dpi).
+В финальной сборке будет три спрайта – обычный и для ретина экранов (для 192dpi и 288dpi).
 ### Вектор
 Одновременно с растовыми спрайтами можно создавать и векторные, принцип тот же, только с SVG иконками:
 ```css
@@ -439,7 +485,7 @@ build: {
 </p>
 
 # SVG symbols
-Помимо обычных спрайтов для стилей, можно использовать SVG символы в HTML, иконки для этого спрайта нужно хранить в отдельной папке блока (symbols). Для каждой иконки будет сгенерирован свой ID по шаблону blockName__iconName, например:
+Помимо обычных спрайтов для стилей, можно использовать SVG символы в HTML, иконки для этого спрайта нужно хранить в отдельной папке блока (symbols). Для каждой иконки будет сгенерирован свой ID по шаблону **blockName__iconName**, например:
 ```
 card/symbols/arrow.svg -> #card__arrow
 ```
@@ -672,6 +718,23 @@ manifest: {
 
 Для создания иконок используется [этот плагин](https://github.com/itgalaxy/favicons), можете посмотреть полные настройки по ссылке, замечу, что плагин позволяет указать данные для манифеста, цвет для фона иконок и всякое разное другое.
 
+### Подключение Favicons
+В разметке можно указать специальный комментарий и тогда базовые иконки будут подключены автоматом, если будут найдены:
+```
+<!-- BEMGO:favicons -->
+```
+```html
+<meta name="msapplication-config" content="./favicons/browserconfig.xml">
+<link rel="shortcut icon" href="./favicons/favicon.ico" type="image/x-icon">
+<link rel="icon" href="./favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="./favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="./favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="mask-icon" href="./favicons/safari-pinned-tab.svg" color="#0f54b9">
+<link rel="manifest" href="./favicons/manifest.json">
+```
+Если у вас сразу есть готовые иконки, то вы можете поместить их в любой блок (например корневой) в папку assets/favicons, добавив файлам специальный ключ @always перед расширением (favicon<span></span>@always.ico), тогда эти иконки будут скопированы в итоговую сборку.
+
+
 <p align="center">
   <a href="#навигация"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
 </p>
@@ -821,6 +884,25 @@ addContent: {
 ```css
 .header {}
 ```
+По аналогии можно добавлять содержимое для любых новых файлов.
+
+<p align="center">
+  <a href="#навигация"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Создание бандлов
+Для каждой страницы можно собирать скрипты и стили отдельно, для этого нужно добавить настройки в [config.js](#настройки-приложения):
+```js
+// app/config.js
+
+build: {
+  ...
+  bundles: [ 'css', 'js' ],
+  ...
+}
+```
+Теперь для каждой страницы будет собран свой CSS и JS.
+> В режиме разработки бандлы не создаются, только при финальной сборке!
 
 <p align="center">
   <a href="#навигация"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
@@ -917,6 +999,7 @@ watch () {
 * Переписан почти весь код :)
 * Обновлены все плагины
 * Убран webpack
+* Убран FTP деплой
 * Добавлена система зависимостей для блоков
 * Добавлено автоматическое подключение скриптов и стилей на основе зависимостей
 * Добавлено подробное описание на русском и английском
