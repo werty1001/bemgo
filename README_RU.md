@@ -223,6 +223,9 @@ module.exports = {
     static: 'static',
     favicons: 'favicons',
   },
+  
+  // Настройки форматирования HTML (подробности ниже)
+  HTMLBeautify: {},
 
   // Настройки для автоматического создания файлов (подробности ниже)
   autoCreate: {},
@@ -378,6 +381,27 @@ build: {
   BEML: true,
 },
 ```
+### Форматирование HTML
+
+Вы можете настроить красивое форматирование HTML кода с помощью [js-beautify](https://github.com/beautify-web/js-beautify), для этого нужно указать настройки в [config.js](#настройки-приложения)
+```js
+// app/config.js
+
+HTMLBeautify: {
+  indent_size: 2, // размер отступа
+  indent_char: ' ', // знак отступа
+  indent_with_tabs: false, // отступ табами
+  indent_inner_html: true, // нужны ли отступы внутри тега html
+  end_with_newline: false, // нужна ли пустая строка в конце файла
+  extra_liners: [], // список тегов с пустой строкой перед собой
+  preserve_newlines: true, // можно ли использовать пустые строки
+  max_preserve_newlines: 2, // максимальное кол-во пустых строк подряд
+  inline: [], // список строчных тегов (по умолчанию по стандарту w3c)
+  unformatted: [], // список тегов, которые не нужно форматировать (по умолчанию inline)
+  content_unformatted: [ 'pre', 'textarea' ], // список тегов, у которых не нужно форматировать содержимое
+},
+```
+Полные настройки вы можете найти [по ссылке](https://github.com/beautify-web/js-beautify#css--html).
 
 
 <p align="center">
