@@ -1,51 +1,126 @@
 
-'use strict';
+'use strict'
 
 
-// Require
+// Copy assets
 
-const gulp = require( 'gulp' );
+module.exports = {
+
+	build: 2,
+	name: 'copy:assets',
+	globs: [ '*', '*', 'assets', '**', '*.*' ],
+
+	run ( done ) {
+
+		const files = ( this.store.assets || [] )
+		const options = {
+			since: this.since.bind( this )
+		}
+
+		// In dev all files
+
+		if ( this.isDev ) {
+
+			const all = this.paths.blocks( ...this.globs )
+
+			if ( !files.includes( all ) ) files.push( all )
+
+		} else {
+
+			const always = this.globs.join( '::' ).replace( '*.*', '*@always.*' ).split( '::' )
+
+			files.push( this.paths.blocks( ...always ) )
+		}
 
 
-// Export
+		// Start stream with files or return cb
 
-module.exports = ( task, core ) => {
+		if ( files.length === 0 ) return done()
 
+		return this.gulp.src( files, options )
+			.pipe( this.plumber() )
+			.pipe( this.checkCSS() )
+			.pipe( this.dest() )
 
-	task.src = core.isDevelopment ? [ core.path.blocks( '*/*/assets/**/*.*' ) ] : core.used.assets;
+	},
 
-	task.dest = ( file ) => {
+	watch () {
+		return {
+			files: this.paths.blocks( ...this.globs ),
+			tasks: this.name,
+			on: {
+				event: 'add',
+				handler: require( this.paths.core( 'editTime' ) )
+			},
+		}
+	},
 
-		let array = file.path.split( core.path.SEP ),
-			name = array[ array.length - 1 ];
-			
-			if ( core.getExtname( file.path ) === '.js' ) {
+	dest () {
+		return this.gulp.dest( file => {
 
-				file.path = core.path.join( file.base, name );
-				return core.path.SCRIPTS;
+			const path = this.path
+			const basename = path.basename( file.path ).replace( '@always', '' )
+			const extname = path.extname( basename )
+
+			if ( extname === '.js' ) {
+
+				file.path = path.join( file.base, basename )
+				return this.paths._scripts
+
+			} else if ( extname === '.css' ) {
+
+				file.path = path.join( file.base, basename )
+				return this.paths._styles
+
+			} else {
+
+				let array = path.relative( this.paths._blocks, file.path ).split( path.sep )
+				let asset = [ array[1] ].concat( array.slice(3) )
+
+				if ( asset.includes( 'favicons' ) ) {
+
+					file.path = path.join( file.base, basename )
+
+					return this.paths._favicons
+
+				} else {
+
+					asset = asset.join( path.sep ).replace( '@always', '' )
+
+					file.path = path.join( file.base, asset )
+
+					return this.paths._static
+
+				}
+
 			}
 
-			if ( core.getExtname( file.path ) === '.css' ) {
+		})
+	},
 
-				file.path = core.path.join( file.base, name );
-				return core.path.STYLES;
-			}
+	since ( file ) {
+		const isModule = file.path.indexOf( this.paths._blocks ) === -1
+		return isModule ? 1262304000000 : this.gulp.lastRun( this.name )
+	},
 
-			file.path = core.path.join( file.base, array.slice( array.indexOf( 'blocks' ) + 2 ).join( core.path.SEP ).replace( core.path.SEP + 'assets', '' ) );
-			
-			return core.path.STATIC;
-	};
+	checkCSS () {
+		return require( 'gulp-if' )( file => ( this.path.extname( file.path ) === '.css' ), this.parseURLs() )
+	},
 
+	parseURLs () {
 
-	return ( cb ) => {
+		const parseCssUrl = require( this.paths.core( 'parseCssUrl' ) )
 
-		if ( ! task.src.length > 0 ) return cb();
+		if ( !this.store.imgs ) this.store.imgs = []
+		if ( !this.store.fonts ) this.store.fonts = []
 
-		return gulp.src( task.src, {since: gulp.lastRun( task.name )} )
-			.pipe( require( 'gulp-plumber' )( core.errorHandler ) )
-			.pipe( gulp.dest( task.dest ) );
+		return require( 'gulp-postcss' )([
+			require( 'postcss-url' )({
+				url: parseCssUrl.bind( this )
+			})
+		])
 
-	}
+	},
 
+}
 
-};

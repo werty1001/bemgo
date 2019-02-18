@@ -1,122 +1,182 @@
 
-'use strict';
+'use strict'
 
 
-// Require
+// Compile styles
 
-const gulp = require( 'gulp' );
-const gulpif = require( 'gulp-if' );
-const plumber = require( 'gulp-plumber' );
-const postcss = require( 'gulp-postcss' );
-const sourcemaps = require( 'gulp-sourcemaps' );
+module.exports = {
 
+	build: 2,
+	name: 'compile:styles',
 
-// Export
+	run ( done ) {
 
-module.exports = ( task, core ) => {
+		const styles = ( this.store.styles = {} )
+		const checkFiles = require( this.paths.core( 'checkFiles' ) )
 
+		checkFiles( 'styles', this ) // Check styles before compile
 
-	core.used.fonts = [];
-	core.used.imgs = [];
+		// Compile
 
+		if ( this.isDev || !this.config.build.bundles.includes( 'css' ) ) {
 
-	task.preprocessor = true;
+			const files = ( styles[this.mainBundle] || [] )
 
-	task.require = {};
+			return this.compileBundle( files, this.mainBundle, done )
 
-	task.sourcemap = !!( core.isDevelopment && core.config.options.sourcemap );
+		} else {
 
-	task.src = core.path.temp( '*' + core.config.extnames.styles );
+			return this.compileBundles( styles )
 
-	task.dest = core.path.STYLES;
+		}
 
-	task.postcss = [];
+	},
 
-	task.cssnano = {
-		reduceTransforms: false,
-		discardUnused: false,
-		convertValues: false,
-		normalizeUrl: false,
-		autoprefixer: false,
-		reduceIdents: false,
-		mergeIdents: false,
-		zindex: false,
-		calc: false
-	};
+	compileBundle ( files, bundle, done ) {
 
-	task.rename = {
-		suffix: '.min'
-	};
+		if ( files.length === 0 ) return done()
 
+		const options = {
+			sourcemaps: this.config.build.sourcemaps.includes( 'css' )
+		}
 
-	// CSS
+		return this.gulp.src( files, options )
+			.pipe( this.plumber() )
+			.pipe( this.addGlobalHelper() )
+			.pipe( this.compile() )
+			.pipe( this.parseURLs() )
+			.pipe( this.concat( bundle ) )
+			.pipe( this.postcss( bundle ) )
+			.pipe( this.dest( this.isDev ? options.sourcemaps : false ) )
+			.pipe( this.cssnano() )
+			.pipe( this.rename() )
+			.pipe( this.minifyDest( options.sourcemaps ) )
+			.on( 'end', done )
 
-	if ( core.config.extnames.styles === '.css' ) {
+	},
 
-		task.preprocessor = false;
-		task.postcss.push(
-			require( 'postcss-import' ),
-			require( 'postcss-url' )
-		);
+	watch () {
+		const extname = this.config.use.styles
+		return {
+			files: this.paths.blocks( '**', `*{.css,${extname}}` ),
+			tasks: this.name,
+		}
+	},
 
-	}
+	dest ( sourcemaps ) {
+		return this.gulp.dest( this.paths._styles, {
+			sourcemaps: sourcemaps ? '.' : false
+		})
+	},
 
-	// LESS
+	compile () {
 
-	if ( core.config.extnames.styles === '.less' ) {
+		let extname = this.config.use.styles.slice(1)
 
-		task.require = require( 'gulp-less' )({
-			relativeUrls: true
-		});
+		if ( extname === 'scss' ) extname = 'sass'
 
-	}
+		if ( typeof this[extname] === 'function' ) return this[extname]()
 
-	// Stylus
+		return this.css()
 
-	if ( core.config.extnames.styles === '.styl' ) {
+	},
 
-		task.require = require( 'gulp-stylus' )({
+	styl () {
+		return require( 'gulp-stylus' )({
 			'include css': true,
 			define: {
 				url: require( 'stylus' ).resolver()
-			}
-		});
-
-	}
-
-	// Sass
-
-	if ( ['.sass','.scss'].indexOf( core.config.extnames.styles ) !== -1 ) {
-
-		task.require = require( 'gulp-sass' )({
-			importer: core.sassResolver
-		});
-
-	}
-
-	// PostCSS
-
-	task.postcss.push(
-
-		require( 'postcss-url' )({
-			url: core.editUrl
-		}),
-
-		require( 'autoprefixer' )({
-			remove: false,
-			browsers: ['last 5 versions', 'ie 10', 'ie 11']
+			},
 		})
+	},
 
-	);
+	less () {
+		return require( 'gulp-less' )({
+			rewriteUrls: 'all'
+		})
+	},
 
-	// Add PostCSS plugins only for production
+	sass () {
+		return require( 'gulp-sass' )({
+			importer: require( this.paths.core( 'sassResolver' ) )
+		})
+	},
 
-	if ( ! core.isDevelopment ) task.postcss.push(
+	css () {
+		this.preprocessor = false
+		return this.pipe()
+	},
 
-		require( 'postcss-sprites' )({
-			retina: true,
-			spritePath: core.path.IMG,
-			stylesheetPath: core.path.STYLES,
+	concat ( bundle ) {
+		return require( 'gulp-concat' )({
+			path: this.path.join( this.paths._root, `${bundle}.css` )
+		})
+	},
+
+	cssnano () {
+		const config = {
+			reduceTransforms: false,
+			discardUnused: false,
+			convertValues: false,
+			normalizeUrl: false,
+			autoprefixer: false,
+			reduceIdents: false,
+			mergeIdents: false,
+			zindex: false,
+			calc: false
+		}
+		return require( 'gulp-if' )( this.forMinify.bind( this ), require( 'gulp-cssnano' )( config ) )
+	},
+
+	rename () {
+		return require( 'gulp-if' )( this.forMinify.bind( this ), require( 'gulp-rename' )({ suffix: '.min' }) )
+	},
+
+	minifyDest ( sourcemaps ) {
+		return require( 'gulp-if' )( !this.isDev, this.dest( sourcemaps ) )
+	},
+
+	forMinify ( file ) {
+		return !this.isDev && this.path.extname( file.path ) === '.css'
+	},
+
+	postcss ( bundle ) {
+
+		const postcss = require( 'gulp-postcss' )
+		const plugins = []
+
+		// Main plugins always used
+
+		plugins.push(
+
+			require( 'autoprefixer' )({
+				remove: false,
+				browsers: this.config.build.autoprefixer
+			}),
+
+		)
+
+		// Only production plugins
+
+		if ( !this.isDev ) plugins.push(
+
+			this.generateSprites( bundle ),
+
+			require( 'stylefmt' )({
+				configFile: this.paths.root( '.stylelintrc' )
+			})
+
+		)
+
+		return postcss( plugins )
+
+	},
+
+	generateSprites ( bundle ) {
+		return require( 'postcss-sprites' )({
+			spriteName: bundle,
+			spritePath: this.paths._img,
+			stylesheetPath: this.paths._styles,
 			spritesmith: {
 				padding: 1,
 				algorithm: 'binary-tree'
@@ -128,32 +188,78 @@ module.exports = ( task, core ) => {
 					}
 				}
 			},
-			filterBy: ( img ) => img.url.indexOf( 'img/sprite/' ) === -1 ? Promise.reject() : Promise.resolve()
-		}),
+			retina: true,
+			verbose: false,
+			filterBy: this.checkIsSprite.bind( this ),
+			hooks: {
+				onSaveSpritesheet: this.onSaveSpritesheet.bind( this ),
+			},		
+		})
+	},
 
-		require( 'css-mqpacker' ),
+	checkIsSprite ( image ) {
 
-		require( 'stylefmt' )({
-			configFile: core.path.core( 'stylelintrc.json' )
+		if ( image.url.indexOf( this.path.join( 'img', 'sprite' ) ) !== -1 ) return Promise.resolve()
+
+		return Promise.reject()
+
+	},
+
+	onSaveSpritesheet ( config, spritesheet ) {
+
+		if ( spritesheet.groups.length === 0 ) spritesheet.groups.push( '' )
+
+		const basename = `sprite_${config.spriteName}`
+		const extname = spritesheet.groups.concat( spritesheet.extension ).join( '.' )
+
+		return this.path.join( config.spritePath, basename + extname )
+
+	},
+
+	addGlobalHelper () {
+
+		if ( !this.config.build.globalStyles ) return this.pipe()
+
+		return this.pipe( require( this.paths.core( 'injectHelper' ) ), this, 'injectHelper' )
+
+	},
+
+	parseURLs () {
+
+		const parseCssUrl = require( this.paths.core( 'parseCssUrl' ) )
+
+		if ( !this.store.imgs ) this.store.imgs = []
+		if ( !this.store.fonts ) this.store.fonts = []
+
+		return require( 'gulp-postcss' )([
+			require( 'postcss-url' )({
+				url: parseCssUrl.bind( this )
+			})
+		])
+
+	},
+
+	compileBundles ( bundles ) {
+
+		const promises = []
+
+		Object.keys( bundles ).forEach( bundle => {
+
+			const files = bundles[bundle]
+
+			if ( files.length === 0 ) return
+
+			const promise = new Promise( ( resolve, reject ) => {
+				this.compileBundle( files, bundle, resolve )
+			})
+
+			return promises.push( promise )
+
 		})
 
-	);
+		return Promise.all( promises )
 
+	},
 
-	return ( cb ) => {
+}
 
-		return gulp.src( task.src )
-			.pipe( plumber( core.errorHandler ) )
-			.pipe( gulpif( task.sourcemap, sourcemaps.init() ) )
-			.pipe( gulpif( task.preprocessor, task.require ) )
-			.pipe( postcss( task.postcss ) )
-			.pipe( gulpif( task.sourcemap, sourcemaps.write() ) )
-			.pipe( gulp.dest( task.dest ) )
-			.pipe( gulpif( !core.isDevelopment, require( 'gulp-cssnano' )( task.cssnano ) ) )
-			.pipe( gulpif( !core.isDevelopment, require( 'gulp-rename' )( task.rename ) ) )
-			.pipe( gulpif( !core.isDevelopment, gulp.dest( task.dest ) ) );
-
-	};
-
-
-};

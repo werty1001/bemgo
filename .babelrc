@@ -1,0 +1,7 @@
+{
+	"presets": ["@babel/preset-env"],
+	"sourceType": "script",
+	"ignore": [
+		"node_modules",
+	]
+}

@@ -1,69 +1,145 @@
 
-'use strict';
+'use strict'
 
 
-// Require
+// Generate SVG symbol
 
-const gulp = require( 'gulp' );
+module.exports = {
 
+	build: 2,
+	name: 'generate:symbol',
+	globs: [ '*', '*', 'symbols', '*.svg' ],
 
-// Export
+	run ( done ) {
 
-module.exports = ( task, core ) => {
+		let files = ( this.store.symbol || [] )
+		let ready = this.symbolReady.bind( this, done )
 
+		// In dev all files
 
-	core.symbol = false;
+		if ( this.isDev ) {
 
-	task.src = core.isDevelopment ? [ core.path.blocks( '*/*/img/symbol/*.svg' ) ] : core.used.symbol;
+			files = this.paths.blocks( ...this.globs )
 
-	task.data = {
+		} else {
 
-		shape: {
-			id: {
-				generator: ( name, file ) => {
+			const always = this.globs.join( '::' ).replace( '*.svg', '*@always.svg' ).split( '::' )
 
-					let array = name.split( core.path.SEP );
-						return array[ array.length - 4 ] + '__' + core.getBasename( name );							
+			files.push( this.paths.blocks( ...always ) )
+		}
+
+		// Start stream with files or return cb
+
+		if ( files.length === 0 ) return done()
+
+		return this.gulp.src( files )
+			.pipe( this.plumber() )
+			.pipe( this.symbol() )
+			.pipe( this.dest() )
+			.on( 'end', ready )
+
+	},
+
+	watch () {
+		return {
+			files: this.paths.blocks( ...this.globs ),
+			tasks: this.name,
+		}
+	},
+
+	dest () {
+		return this.gulp.dest( file => {
+
+			this.store.svg = String( file.contents )
+
+			return this.paths._root
+
+		})
+	},
+
+	symbol () {
+
+		const config = {
+			svg: {
+				namespaceClassnames: false,
+			},
+			shape: {
+				id: {
+					generator: this.generateID.bind( this )
 				}
-			}
-		},
-
-		mode: {
-			symbol: {
-				dest: core.path.IMG,
-				sprite: 'symbol.svg',
-				render: false,
-				svg: {
-					xmlDeclaration: false,
-					doctypeDeclaration: false,
-					rootAttributes: {
-						style: 'position:absolute;top:0;left:0;width:1px;height:1px;visibility:hidden;opacity:0;',
-						'aria-hidden': 'true'
+			},
+			mode: {
+				symbol: {
+					dest: this.paths._symbol,
+					sprite: 'symbol.svg',
+					render: false,
+					svg: {
+						xmlDeclaration: false,
+						doctypeDeclaration: false,
+						rootAttributes: {
+							style: 'position:absolute;top:0;left:0;width:1px;height:1px;visibility:hidden;opacity:0;',
+							'aria-hidden': 'true'
+						},
+						transform: [
+							this.transformSVG.bind( this )
+						]
 					}
 				}
 			}
 		}
 
-	};
+		return require( 'gulp-svg-sprite' )( config )
+	},
 
-	task.dest = ( file ) => {
+	generateID ( name, file ) {
 
-		core.symbol = `./${core.path.join( core.config.dist.img, task.data.mode.symbol.sprite )}?ver=${new Date().getTime()}`;
+		const path = this.path
+		const extname = path.extname( name )
+		const basename = path.basename( name, extname ).replace( '@always', '' )
+		const block = name.split( path.sep )[1]
 
-		return core.path.ROOT;
-	}; 
+		return `${block}__${basename}`
 
+	},
 
-	return ( cb ) => {
+	transformSVG ( svg ) {
 
-		if ( ! task.src.length > 0 ) return cb();
+		const fs = this.fs
+		const path = this.path
+		const level = this.config.build.mainLevel
+		const prependPath = this.paths.blocks( level, 'symbol', 'prepend.svg' )
+		const appendPath = this.paths.blocks( level, 'symbol', 'append.svg' )
+		const prepend = this.isFile( prependPath ) ? fs.readFileSync( prependPath ) : ''
+		const append = this.isFile( appendPath ) ? fs.readFileSync( appendPath ) : ''
+		const pattern = /(<svg*\b[^>]*>)(.*)(<\/svg>)/gi
 
-		return gulp.src( task.src )
-			.pipe( require( 'gulp-plumber' )( core.errorHandler ) )
-			.pipe( require( 'gulp-svg-sprite' )( task.data ) )
-			.pipe( gulp.dest( task.dest ) );
+		if ( prepend || append ) {
+			svg = svg.replace( pattern, ( str, start, body, end ) => `${start}${prepend}${body}${append}${end}` )
+		}
 
-	};
+		return svg
 
+	},
 
-};
+	symbolReady ( done ) {
+
+		if ( !this.isDev ) return done()
+
+		const pages = this.store.pages || {}
+		const editTime = require( this.paths.core( 'editTime' ) )
+
+		Object.keys( pages ).forEach( page => {
+
+			if ( page === this.mainBundle ) return
+
+			if ( 'symbol' in pages[page].nodes )
+				return editTime( this.paths.pages( page + this.config.use.templates ) )
+
+		})
+
+		return done()
+
+	},
+
+}
+

@@ -1,19 +1,19 @@
 
-'use strict';
+'use strict'
 
 
-// Export
+// Del dist folder
 
-module.exports = ( task, core ) => {
+module.exports = {
 
+	build: 0,
+	name: 'del',
 
-	task.src = [
-		core.path.DIST,
-		core.path.temp( '*.*' )
-	];
+	run ( done ) {
+		return require( 'del' )([
+			this.paths._dist,
+		])
+	},
 
+}
 
-	return ( cb ) => require( 'del' )( task.src );
-
-
-};

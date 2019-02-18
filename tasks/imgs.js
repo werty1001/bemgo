@@ -2,17 +2,17 @@
 'use strict'
 
 
-// Copy fonts
+// Copy images for styles
 
 module.exports = {
 
 	build: 3,
-	name: 'copy:fonts',
-	globs: [ '*', '*', 'fonts', '*.{eot,svg,ttf,woff,woff2}' ],
+	name: 'copy:imgs',
+	globs: [ '*', '*', 'img', '**', '*.{webp,png,jpg,jpeg,svg,gif,ico}' ],
 
 	run ( done ) {
 
-		const files = ( this.store.fonts || [] )
+		const files = ( this.store.imgs || [] )
 		const options = {
 			since: this.since.bind( this )
 		}
@@ -59,10 +59,14 @@ module.exports = {
 
 			const path = this.path
 			const basename = path.basename( file.path ).replace( '@always', '' )
+			const isSprite = file.path.indexOf( path.join( 'img', 'sprite' ) ) !== -1
+			const relative = file.path.indexOf( this.paths._blocks ) !== -1 ? this.paths._blocks : this.paths._root
+			const block = path.relative( relative, file.path ).split( path.sep )[1]
+			const name = ( isSprite ? 'sprite_' : '' ) + `${block}_${basename}`
 
-			file.path = path.join( file.base, basename )
+			file.path = path.join( file.base, name )
 
-			return this.paths._fonts
+			return this.paths._img
 
 		})
 	},

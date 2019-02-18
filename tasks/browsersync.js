@@ -1,32 +1,38 @@
 
-'use strict';
+'use strict'
 
 
-// Export
+// Start watch with browserSync
 
-module.exports = ( task, core ) => {
+module.exports = {
 
+	build: 4,
+	name: 'browserSync:watch',
 
-	if ( ! core.isDevelopment ) return ( cb ) => cb();
+	run ( done ) {
 
+		if ( !this.isDev || !process.env.WATCH ) return done()
 
-	const browserSync = require( 'browser-sync' ).create();
+		const browserSync = require( 'browser-sync' ).create()
 
-	browserSync.init({
-
-		server: core.path.DIST,
-		port: core.port,
-		tunnel: false,
-		snippetOptions: {
-			rule: {
-				match: /<\/body>/i
+		browserSync.init({
+			server: this.paths._dist,
+			port: process.env.PORT || 3000,
+			tunnel: process.env.TUNNEL || false,
+			snippetOptions: {
+				rule: {
+					match: /<\/body>/i
+				}
 			}
-		}
+		})
 
-	});
+		this.store.watch = true
 
+		return browserSync
+			.watch( this.paths.dist( '**', '*.*' ) )
+			.on( 'change', browserSync.reload )
 
-	return ( cb ) => browserSync.watch( core.path.dist( '**/*.*' ) ).on( 'change', browserSync.reload );
+	},
 
+}
 
-};
