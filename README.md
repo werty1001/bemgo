@@ -154,6 +154,23 @@ block/
 
 # Usage
 
+* [App's config](#apps-config)
+* [Templates](#templates)
+* [Styles](#styles)
+* [Raster and vector sprites](#raster-and-vector-sprites)
+* [SVG symbols](#svg-symbols)
+* [Block dependencies](#block-dependencies)
+* [Automatic creation of files and blocks](#automatic-creation-of-files-and-blocks)
+* [Generate favicons](#generate-favicons)
+* [Redefinition levels](#redefinition-levels)
+* [Image optimization](#image-optimization)
+* [Fast make blocks and files from terminal](#fast-make-blocks-and-files-from-terminal)
+* [Default content in new files](#default-content-in-new-files)
+* [Bundles](#bundles)
+* [Remove unused blocks](#remove-unused-blocks)
+* [Add task](#add-task)
+
+
 <p align="center">
   <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
 </p>
@@ -241,7 +258,7 @@ module.exports = {
   <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
 </p>
 
-# Template engines and markup
+# Templates
 
 Pug / Twig or plain HTML can be used as a template maker.  
 HTML is the default, but you can change this in [config.js](#apps-config)
@@ -284,9 +301,9 @@ h1= global.jsons.message.greeting
 <h1>{{ global.jsons.message.greeting }}</h1>
 
 ```
-### Pathways for paths
-Each block has its own folder with statics, so you need to specify placeholders, so that it is clear which block needs to look for a specific file.
-> A placeholder consists of a @ (dog) symbol and a block name.
+### Pathways
+Each block has its own folder with assets, so you need to specify placeholder before specific file.
+> A placeholder consists of a "@" symbol and a block name.
 
 For example, we have a block with a **card/assets/man.png** image, in the markup, you need to specify the path like this:
 ```html
@@ -300,8 +317,8 @@ There are also special placeholders:
 @favicons - favicons folder
 ```
 
-### Automatic connection of scripts and styles
-[The system of dependencies](#1111) eliminates the need to connect JS and CSS files to the page with your hands, now it is enough to specify a special comment and everything will be done automatically.
+### Automatic insert of scripts and styles
+[The system of dependencies](#block-dependencies) eliminates the need to connect JS and CSS files to the page with your hands, now it is enough to specify a special comment and everything will be done automatically.
 ```html
 <html>
   <head>
@@ -330,7 +347,7 @@ build: {
 > \** This map will be updated automatically, no need to change something with your hands!
 
 ### Advanced HTML
-You can opt out of template engines and write markup on regular HTML, plus an additional plugin is built into the builder, which allows you to load pieces of HTML code, use variables and cycles, as well as conditional constructions, you can learn more about how this plugin works [here](https://www.npmjs.com/package/gulp-file-include).
+You can opt out of template engines and write markup on regular HTML with additional plugin, which allows you to load pieces of HTML code, use variables and cycles, as well as conditional constructions, you can learn more about how this plugin works [here](https://www.npmjs.com/package/gulp-file-include).
 
 ### BEM marking
 If you don’t like to write BEM code with your hands, then there are several plugins in the build that simplify this task.
@@ -390,7 +407,7 @@ Full settings you can find [here](https://github.com/beautify-web/js-beautify#cs
   <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
 </p>
 
-# Preprocessors and styles
+# Styles
 As a preprocessor for styles, you can use LESS / Sass / Stylus or use plain CSS.  
 CSS is the default, but you can change this in [config.js](#apps-config)
 
