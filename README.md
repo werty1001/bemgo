@@ -241,6 +241,523 @@ module.exports = {
   <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
 </p>
 
+# Template engines and markup
+
+Pug / Twig or plain HTML can be used as a template maker.  
+HTML is the default, but you can change this in [config.js](#apps-config)
+```js
+// app/config.js
+
+use: {
+  templates: '.pug', // Pug, I choose you!
+  ...
+},
+
+```
+Now the build will look for pug files.  
+### JSON data in markup
+Each block can have a data file **data.json**, this data is available in the markup, for example, we have a **message** block with a json file:
+
+```json
+// message/data.json
+
+{
+  "greeting": "Hellow, world!"
+}
+```
+This data is easily get from a special object **global.jsons**
+```pug
+// page.pug
+
+h1= global.jsons.message.greeting
+
+```
+```html
+// page.html
+
+<h1>@@global.jsons.message.greeting</h1>
+
+```
+```twig
+// page.twig
+
+<h1>{{ global.jsons.message.greeting }}</h1>
+
+```
+### Pathways for paths
+Each block has its own folder with statics, so you need to specify placeholders, so that it is clear which block needs to look for a specific file.
+> A placeholder consists of a @ (dog) symbol and a block name.
+
+For example, we have a block with a **card/assets/man.png** image, in the markup, you need to specify the path like this:
+```html
+<img src="@card/man.png" alt="">
+```
+There are also special placeholders:
+```html
+@styles - styles folder
+@symbol - way to SVG symbol
+@scripts - scripts folder
+@favicons - favicons folder
+```
+
+### Automatic connection of scripts and styles
+[The system of dependencies](#1111) eliminates the need to connect JS and CSS files to the page with your hands, now it is enough to specify a special comment and everything will be done automatically.
+```html
+<html>
+  <head>
+    <!-- BEMGO:styles --> // CSS files will be here
+  </head>
+  <body>
+    ...
+    <!-- BEMGO:scripts --> // and here JS files
+  </body>
+</html>
+```
+
+### PUG Template
+When working with PUG, it is convenient to put some blocks into mixins and call them, but there is one problem - there is no dynamic connection in the template engine, and it is painful to connect the mixin each time :)
+
+The builder provides for the automatic include of all PUG files in one. This completely solves the problem, and you just need to specify the path where to write the map files in [config.js](#apps-config) and then include it to your layout.
+```js
+// app/config.js
+
+build: {
+  ...
+
+  pugMap: 'app/blocks/map.pug', // path from root **
+},
+```
+> \** This map will be updated automatically, no need to change something with your hands!
+
+### Advanced HTML
+You can opt out of template engines and write markup on regular HTML, plus an additional plugin is built into the builder, which allows you to load pieces of HTML code, use variables and cycles, as well as conditional constructions, you can learn more about how this plugin works [here](https://www.npmjs.com/package/gulp-file-include).
+
+### BEM marking
+If you don’t like to write BEM code with your hands, then there are several plugins in the build that simplify this task.
+* [Bemto](https://github.com/kizu/bemto) - for Pug
+```pug
+include node_modules/bemto.pug/bemto
+
++b.block
+  +e.element Text
+```
+
+* [BemPug](https://github.com/werty1001/bempug) - for Pug
+```pug
+include node_modules/bempug/index
+
++b( 'block' )
+  +e( 'element' ) Text
+```
+
+* [BEML](https://github.com/zenwalker/node-beml) - universal plugin, it can be activated in [config.js](#apps-config)
+```html
+<div block="block">
+  <div elem="element">Text</div>
+</div>
+```
+```js
+// app/config.js
+
+build: {
+  ...
+
+  BEML: true,
+},
+```
+### HTML formatting
+You can set up beautiful formatting of HTML code using [js-beautify](https://github.com/beautify-web/js-beautify), for this you need to specify the settings in [config.js](#apps-config)
+```js
+// app/config.js
+
+HTMLBeautify: {
+  indent_size: 2,
+  indent_char: ' ',
+  indent_with_tabs: false,
+  indent_inner_html: true,
+  end_with_newline: false,
+  extra_liners: [],
+  preserve_newlines: true,
+  max_preserve_newlines: 2,
+  inline: [],
+  unformatted: [],
+  content_unformatted: [ 'pre', 'textarea' ],
+},
+```
+Full settings you can find [here](https://github.com/beautify-web/js-beautify#css--html).
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Preprocessors and styles
+As a preprocessor for styles, you can use LESS / Sass / Stylus or use plain CSS.  
+CSS is the default, but you can change this in [config.js](#apps-config)
+
+```js
+// app/config.js
+
+use: {
+  ...
+  styles: '.styl', // Stylus I choose you!
+},
+```
+Most likely you have some kind of common file with variables or mixins, but in the conditions of independence of the blocks it will have to be imported into each style separately. To put it mildly, this is not the most convenient option, so there is a better way - you can specify a specific file (or an array of files) in the settings and it will be imported automatically.
+```js
+// app/config.js
+
+build: {
+  ...
+
+  globalStyles: 'app/blocks/global.styl' // Path from root to variables file
+},
+```
+
+### PostCSS
+The following PostCSS plugins are used by default:
+* [autoprefixer](https://github.com/postcss/autoprefixer) - always
+* [postcss-sprites](https://github.com/2createStudio/postcss-sprites) - only in production build
+* [stylefmt](https://github.com/morishitter/stylefmt) - only in production build
+
+Additional plug-ins you can always add yourself is easy.
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Raster and vector sprites
+You can easily build vector and raster sprites (for different screens), for this is used a wonderful [PostCSS plugin](https://github.com/2createStudio/postcss-sprites).
+
+> Importantly, in the development mode, sprites are not created, only during the production build!
+
+All icons for the sprite must be stored in a separate block directory (img/sprite) and simply used as normal images, during the production build all the icons in CSS that are in this directory will be turned into a sprite.
+```css
+/* zoom/zoom.css */
+
+.zoom {
+  width: 24px;
+  height: 24px;
+  background: url('img/sprite/zoom.png') no-repeat center;
+}
+
+.zoom_active {
+  background: url('img/sprite/zoom_active.png') no-repeat center;
+}
+```
+As a result, in the production build will be:
+
+```css
+
+.zoom {
+  width: 24px;
+  height: 24px;
+  background-image: url('img/sprite.png');
+  background-position: 0 0;
+  background-size: 48px 24px;
+}
+
+.zoom_active {
+  background-image: url('img/sprite.png');
+  background-position: -24px 0;
+  background-size: 48px 24px;
+}
+```
+Previously, you had to create a map with variables for each preprocessor, and now simple and clear CSS code, and all that is superfluous is under the hood.
+
+### For retina
+You can create sprites for screens with high pixel density (2x, 3x, 4x, etc.), for this it is enough to make an icon in the desired size and add density before the file extension, for example for 2x and 3x:
+```css
+/* zoom/zoom.css */
+
+.zoom {
+  width: 24px;
+  height: 24px;
+  background: url('img/sprite/zoom.png') no-repeat top center;
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .zoom {
+    background: url('img/sprite/zoom@2x.png') no-repeat center/cover;
+  }
+}
+
+@media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 288dpi) {
+  .zoom {
+    background: url('img/sprite/zoom@3x.png') no-repeat center/cover;
+  }
+}
+```
+In the production build will be three sprites - normal and for retina screens (for 192dpi and 288dpi).
+### Vector
+At the same time with raster sprites, you can create vector ones, the same principle, only with SVG icons:
+```css
+
+.zoom {
+  width: 24px;
+  height: 24px;
+  background: url('img/sprite/zoom.svg') no-repeat center;
+}
+```
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# SVG symbols
+In addition to the usual style sprites, you can use SVG symbols in HTML, the icons for this sprite need to be stored in a separate block folder (symbols). For each icon, your ID will be generated according to the **blockName__iconName** pattern, for example:
+```
+card/symbols/arrow.svg → #card__arrow
+```
+### Use SVG
+There are several options for use SVG, you can embed directly into the HTML code, for this you need to specify a special comment:
+```html
+<!-- BEMGO:symbol -->
+```
+Then in the use tag you need only the ID:
+```html
+<svg>
+  <use xlink:href="#card__arrow"></use>
+</svg>
+```
+The second option is an external file, then a special placeholder must be specified in the use tag:
+```html
+<svg>
+  <use xlink:href="@symbol#card__arrow"></use>
+</svg>
+```
+### SVG Transformation
+If at least one SVG icon is found in the page code, the build will look for a special symbol block at the main development level (see **mainLevel** property in [config.js](#apps-config)), you can create two `prepend.svg` and `append.svg` files inside this block and then the contents of these files will be added to the SVG body (at the beginning and at the end).
+
+### Get icons for SVG
+In development mode, all icons from all blocks will be added to the sprite, but only those icons that are in your code (with the «correct» ID) will be included in the production build.
+> You can also add a special key @always before expanding the icon, then it will fall into the sprite anyway:
+```
+card/symbols/arrow@always.svg
+```
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Block dependencies
+For any block, you can specify dependencies (other blocks or modules) in the deps.js file
+```js
+// deps.js
+
+module.exports = {
+
+  nodes: [], // Nodes: blocks / elements / modifiers
+
+  modules: [], // Modules
+
+}
+```
+For example, there is a **select** block and with the help of JS, the **select_open** modifier is dynamically added to it, there is no this modifier in the HTML code, so the builder does not know about it; to fix this, it is enough to add this modifier in the deps.js file
+
+```js
+// select/deps.js
+
+module.exports = {
+
+  nodes: [
+    'select_open'
+  ],
+
+}
+```
+Now everything is fine, the builder takes this modifier. By analogy, you can add other nodes (elements and blocks) that are not in the code, but they should still be included in the build.
+### Modules
+The second variant of dependencies is modules, each module is an object with three properties:
+```js
+// deps.js
+
+module.exports = {
+
+  modules: [
+    {
+      from: '',   // module location (CDN or path from the root)
+      inject: [], // list of files to be used as separate files
+      import: [], // list of files to be imported into the common bundle
+    },
+  ],
+
+}
+```
+For example, we have a **slider** block, for full-fledged work, it needs the [slick plugin](http://kenwheeler.github.io/slick/), which in turn uses the jQuery library:
+```js
+// slider/deps.js
+
+module.exports = {
+
+  modules: [
+    {
+      from: 'https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/', // jQuery from CDN
+      inject: [ 'jquery.min.js' ], // this file will be used on the page separately
+    },
+    {
+      from: 'node_modules/slick-carousel/slick', // get slick from node_modules
+      inject: [ 'slick.min.js' ], // this file will be used on the page separately
+      import: [ 'slick.css' ], // this file will be imported into the common bundle
+    },
+  ],
+
+}
+```
+Now when using the slider block on the page, the jQuery library and the slick.min.js plugin will be used too, all the images and fonts from slick.css will automatically be pulled into the build.
+
+* If the module does not have the from property, then the file search will take place in the block itself (in the assets folder).
+* Files from CDN can not be imported, only used as external files.
+
+If you need to connect the JS file asynchronously, simply add @async or @defer to the end:
+```js
+{
+  from: 'node_modules/slick-carousel/slick',
+  inject: [ 'slick.min.js@async' ], // this script will be used on the page with the async attribute.
+},
+```
+For a more subtle use of the module, a special filter function is provided that will be called for each file from inject and import:
+```js
+filter ( file, node, page, type ) {
+
+  // file - full path of the included file
+  // node - block object with all attributes
+  // page - page name
+  // type - use type, 'inject' or 'import'
+
+  console.log( node ) // { name: 'link', attrs: { class: 'link' }, tag: 'a' }
+
+  return true // the function should return true or false (use or not)
+}
+```
+Suppose I have a **link** block and this block sometimes needs a [lightbox plugin](https://lokeshdhakar.com/projects/lightbox2/), but you need to connect it only under certain conditions - when the block has the **link_zoom** modifier:
+```js
+// link/deps.js
+
+module.exports = {
+
+  modules: [
+    {
+      from: 'node_modules/lightbox2/dist/',
+      inject: [ 'js/lightbox.js' ],
+      import: [ 'css/lightbox.css' ],
+      filter ( file, node ) {
+        return node.attrs.class.split( ' ' ).includes( 'link_zoom' ) // check
+      }
+    },
+  ],
+
+}
+```
+A simple check in one line solves the problem, now the module will pull up only at the right moment.
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Automatic creation of files and blocks
+You just write the BEM code, and the blocks and files are created automatically.  
+By default, this feature is turned off, to activate it, you need to add settings to [config.js](#apps-config)
+```js
+// app/config.js
+
+autoCreate: {
+  onlyOnWatch: true, // create files always or only during watch
+  folders: [], // the list of directories of the new block, for example: 'img', 'assets'
+  files: [], // list of files of the new node, for example: '.css', '.js', 'data.json'
+  levels: [], // levels where blocks will be created, for example: 'develop'
+  ignoreNodes: [], // list of nodes that will be completely ignored **
+},
+
+```
+> \** You can use regular expressions here!
+
+Suppose I need to create blocks at the develop level, each new block must have a style file, a script and a folder for pictures, but at the same time, you need to ignore the elements and not create files for them:
+```js
+// app/config.js
+
+autoCreate: {
+  onlyOnWatch: true, // create files only during watch
+  folders: [ 'assets' ], // assets folder created for new blocks
+  files: [ '.css', '.js' ], // new node will have style and script
+  levels: [ 'develop' ], // new blocks are created only at the develop level
+  ignoreNodes: [ /__[\w]/i ], // all elements will be ignored
+},
+
+```
+Good, but with such settings, each JS and CSS file will also be created for each block modifier, if you do not need it, you can add more settings:
+```js
+// app/config.js
+
+autoCreate: {
+  onlyOnWatch: true,
+  folders: [ 'img', 'assets' ],
+  files: [ '.css', '.js' ],
+  levels: [ 'develop' ],
+  ignoreNodes: [ /__[\w]/i ],
+  ignoreStyle: [ /(_|--)[\w]/i ], // ignore modifiers when creating styles
+  ignoreScript: [ /(_|--)[\w]/i  ], // ignore modifiers when creating scripts
+  ignoreTemplate: [], // by analogy, you can specify for templates
+},
+
+```
+In fact, we could just ban modifiers as well as elements, but to demonstrate all the possibilities let it be so :)
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Generate favicons
+
+1. First you need to place your icon in the root of the development folder (**app/icon.png**).
+2. Next, in the [config.js](#apps-config), you need to specify which icons to create.
+
+> If there is no icon.png, then nothing will be created, and in development mode this task is always ignored!
+
+```js
+// app/config.js
+
+favicons: {
+  android: false,
+  appleIcon: false,
+  appleStartup: false,
+  coast: false,
+  favicons: true, // by default only this property is true
+  firefox: false,
+  windows: false,
+  yandex: false,
+},
+
+// You can also specify data for the manifest
+
+manifest: {
+  appName: null,
+  appShortName: null,
+  appDescription: null,
+  ...
+}
+```
+To create icons, [this plugin](https://github.com/itgalaxy/favicons) is used, you can see the full settings on the link, I note that the plugin allows you to specify the data for the manifest, the color for the background of the icons and various other things.
+
+### Insert Favicons
+In the markup, you can specify a special comment and then the basic icons will be insert automatically, if found:
+```
+<!-- BEMGO:favicons -->
+```
+```html
+<meta name="msapplication-config" content="./favicons/browserconfig.xml">
+<link rel="shortcut icon" href="./favicons/favicon.ico" type="image/x-icon">
+<link rel="icon" href="./favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="icon" href="./favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="./favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="mask-icon" href="./favicons/safari-pinned-tab.svg" color="#0f54b9">
+<link rel="manifest" href="./favicons/manifest.json">
+```
+If you have ready-made icons at once, then you can put them in any block (for example, root) in the assets/favicons folder, adding the special @always key before the extension (favicon<span></span>@always.ico) to the files, then these icons will be copied into the production.
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
 # Redefinition levels
 To organize the blocks, you can use any number of levels, several or only one, while the files will be searched for all, and the order of import styles and scripts from different levels can be configured in [config.js](#apps-config)
 ```js
@@ -433,7 +950,7 @@ A "header/img" folder will be created
 </p>
 
 # Default content in new files
-When creating files [automatically](#1111) or [by hand](#fast-make-blocks-and-files-from-terminal), its may contain default content, for this you need to add settings in [config.js](#apps-config)
+When creating files [automatically](#automatic-creation-of-files-and-blocks) or [by hand](#fast-make-blocks-and-files-from-terminal), its may contain default content, for this you need to add settings in [config.js](#apps-config)
 
 ```js
 // app/config.js
