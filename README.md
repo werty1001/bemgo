@@ -158,13 +158,418 @@ block/
   <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
 </p>
 
+# App's config
+All the basic settings are stored in a single file **app/config.js**, this approach allows you to use the same builder for different projects and configure each application individually.
+
+> The default settings will be used, if there is no config.js
+
+### Default settings:
+```js
+module.exports = {
+  
+  // Used technologies
+  use: {
+    templates: '.html', // '.html' or '.pug' or '.twig'
+    scripts: '.js',     // only '.js'
+    styles: '.css',     // '.css' or '.styl' or '.less' or '.scss' or '.sass'
+  },
+
+  // Main build settings
+  build: {
+
+    autoprefixer: [ 'last 3 versions' ], // autoprefixer
+    babel: false, // need Babel?
+    BEML: false, // need BEM postprocessor in HTML
+    
+    bundles: [], // need CSS/JS bundles, may [ 'css', 'js' ]
+    sourcemaps: [], // need sourcemaps, may [ 'css', 'js' ]
+    imagemin: [], // need image optimization, may [ 'png', 'jpg', 'svg', 'gif' ]
+
+    mainBundle: 'app', // main bundle name
+    mainLevel: 'develop', // main level name
+    
+    pugMap: false, // path (from root) for generate PUG map
+    globalStyles: false, // path (from root) for global styles
+    
+    addVersions: true, // need versions (?v=23413)
+    HTMLRoot: './', // root for paths at static files in HTML
+ 
+  },
+
+  // Production structure
+  dist: {
+    styles: 'styles',
+    fonts: 'styles/fonts',
+    img: 'styles/img',
+    symbol: 'styles/img',
+    scripts: 'scripts',
+    static: 'static',
+    favicons: 'favicons',
+  },
+  
+  // HTML formatting settings (details below)
+  HTMLBeautify: {},
+
+  // Settings for automatic file creation (details below)
+  autoCreate: {},
+
+  // Settings for default content in files (details below)
+  addContent: {},
+
+  // Blanks for creating blocks from the terminal (details below)
+  fastMake: {},
+
+  // Settings for generate favicons (details below)
+  favicons: {},
+
+  // Data for the manifest (details below)
+  manifest: {},
+
+  // The order of import files from different levels (details below)
+  levels: {},
+
+  // Settings for image optimization (details below)
+  optimization: {},
+  
+  // List of blocks protected from clean (details below)
+  cleanProtect: [],
+
+}
+```
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Redefinition levels
+To organize the blocks, you can use any number of levels, several or only one, while the files will be searched for all, and the order of import styles and scripts from different levels can be configured in [config.js](#apps-config)
+```js
+// app/config.js
+
+levels: {
+  common: 1, // first from here
+  develop: 2, // then from here
+},
+```
+Suppose we have a **button** block at the common and develop level:
+```css
+/* common/button/button.css */
+
+.button {
+  background-color: #cf2318;
+  text-align: center;
+}
+```
+```css
+/* develop/button/button.css */
+
+.button {
+  background-color: transparent;
+}
+```
+In the main bundle file will be both CSS rules:
+```css
+/* app.css */
+
+.button {
+  background-color: #cf2318;
+  text-align: center;
+}
+
+.button {
+  background-color: transparent; /* This rule will change the background color. */
+}
+```
+Thus, we redefined the background for the button, without touching the file at the common level. 
+
+> These are the basic redefinition capabilities, if you need more advanced settings, then I advise you to look at the stack from Yandex.
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Image optimization
+
+You can enable image compression in [config.js](#apps-config)
+> There will be no optimization in the development mode, only during the production build!
+```js
+// app/config.js
+
+build: {
+  ...
+  imagemin: [ 'svg', 'jpg', 'png', 'gif' ] // support for 4 types
+},
+```
+The [imagemin](https://github.com/sindresorhus/gulp-imagemin) plugin is used for compression, for each type, you can specify your optimization settings, the default will be as follows:
+
+```js
+// app/config.js
+
+optimization: {
+
+  jpg: {
+    progressive: true,
+    arithmetic: false,
+  },
+
+  png: {
+    optimizationLevel: 5, // may 0-7
+    bitDepthReduction: true,
+    colorTypeReduction: true,
+    paletteReduction: true,
+  },
+
+  gif: {
+    optimizationLevel: 1, // may 1-3
+    interlaced: true
+  },
+
+  // For svg, you need to specify an array with settings!
+  svg: [
+    { cleanupIDs: false },
+    { removeViewBox: false },
+    { mergePaths: false },
+  ],
+
+  // Here you can specify the names (without extensions) that do not need to be optimized.
+  ignore: []
+
+},
+```
+More information about each type of compression settings can be found in the docs:
+* gif - [gifsicle](https://github.com/imagemin/imagemin-gifsicle#api)
+* jpg - [jpegtran](https://github.com/imagemin/imagemin-jpegtran#api)
+* png - [optipng](https://github.com/imagemin/imagemin-optipng#api)
+* svg - [svgo](https://github.com/svg/svgo#what-it-can-do)
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Fast make blocks and files from terminal
+If for some reason the [automatic creation of files and blocks](#automatic-creation-of-files-and-blocks) does not fit, then you can quickly create blocks and files from the terminal with a simple command `npm run add`.
+
+> If any files and folders already exist, they will simply be ignored.
+
+Create a block **header** and **footer** with additional files:
+```bash
+npm run add header[.css,.js] footer[.pug]
+```
+> **Result:**  
+A "header" folder will be created  
+A "header/header.css" file will be created  
+A "header/header.js" file will be created  
+A "footer" folder will be created  
+A "footer/footer.pug" file will be created
+
+You can create elements and modifiers:
+```bash
+npm run add header__logo[.css,.js] footer__inner[.styl] footer_home[.styl]
+```
+> **Result:**  
+A "header" folder will be created  
+A "header/header__logo.css" file will be created  
+A "header/header__logo.js" file will be created  
+A "footer" folder will be created  
+A "footer/footer__inner.styl" file will be created  
+A "footer/footer_home.styl" file will be created
+
+You can also create folders inside the block:
+```bash
+npm run add card[img/sprite,assets,.pug,deps.js]
+```
+> **Result:**  
+A "card" folder will be created  
+A "card/img" folder will be created  
+A "card/img/sprite" folder will be created  
+A "card/assets" folder will be created  
+A "card/card.pug" file will be created  
+A "card/deps.js" file will be created
+
+By default, all blocks are created at the main level (see property **mainLevel** in [config.js](#apps-config)), but you can specify the level directly through the colon:
+
+```bash
+npm run add card[.js,.scss] :common
+```
+> **Result:**  
+A "common" folder will be created (level)  
+A "common/card" folder will be created  
+A "common/card/card.js" file will be created  
+A "common/card/card.scss" file will be created 
+
+You can also quickly create pages, for this you need to specify the keyword **page** after add:
+```bash
+npm run add page index catalog about.html
+```
+> **Result:**  
+A "pages" folder will be created  
+A "pages/index.pug" file will be created *  
+A "pages/catalog.pug" file will be created *  
+A "pages/about.html" file will be created  
+\------  
+\* If the page extension is not specified, it will be taken from config.js
+
+If you don't want to list files and folders every time, you can create blanks in [config.js](#apps-config)
+```js
+// app/config.js
+
+fastMake: {
+  b: ['.js','.css','.pug','img']
+}
+```
+Now quite well:
+```bash
+npm run add header[b]
+```
+> **Result:**  
+A "header" folder will be created  
+A "header/header.js" file will be created  
+A "header/header.css" file will be created  
+A "header/header.pug" file will be created  
+A "header/img" folder will be created  
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Default content in new files
+When creating files [automatically](#1111) or [by hand](#fast-make-blocks-and-files-from-terminal), its may contain default content, for this you need to add settings in [config.js](#apps-config)
+
+```js
+// app/config.js
+
+addContent: {
+  page: 'I make [name] page.', // [name] will be replaced by the page name
+  css: '.[name] {}', // [name] will be replaced with the name of the css file
+}
+```
+Now when creating a CSS file `npm run add header[.css]` its contents will be:
+```css
+.header {}
+```
+By analogy, you can add content for any new files.
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Bundles
+For each page, you can compile scripts and styles separately, for this you need to add settings to [config.js](#apps-config):
+```js
+// app/config.js
+
+build: {
+  ...
+  bundles: [ 'css', 'js' ],
+  ...
+}
+```
+Now for each page will be compiled its own CSS and JS.
+> In development mode, no bundles are created, only in production build!
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Remove unused blocks
+
+You can quickly clean your development structure and remove only those blocks that are not used on the pages.
+* The block will be deleted completely (block folder with all its contents).
+* At elements and modifiers will be deleted styles, scripts and template.
+
+> Blocks will be removed from all levels at once!
+
+Run:
+```bash
+npm run clean
+```
+You can also protect certain blocks and they will not be deleted by this command, just specify these blocks in [config.js](#apps-config): 
+
+```js
+// app/config.js
+
+cleanProtect: [ 'title' ], // The "title" block with elements and modifiers are now protected.
+```
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
+# Add task
+You need to add a new JS file to the tasks folder with minimal functionality:
+```js
+// tasks/mytask.js
+
+'use strict'
+
+module.exports = {
+  name: 'mytask',
+  run ( done ) {
+    console.log( 'Go!' )
+    return done()
+  },
+}
+```
+> Each task must contain a name and a run function, which should return a callback or, for example, stream, more about this can be found [here](https://gulpjs.com/docs/en/getting-started/async-completion).
+
+#### Now you can run it:
+```bash
+npm run task mytask
+```
+> **Result:**  
+Go!
+
+Everything works, now you can include the task in the main build, the property **build** is responsible for this, which contains the execution number:
+
+```js
+// tasks/mytask.js
+
+'use strict'
+
+module.exports = {
+  name: 'mytask',
+  build: 5, // the task will run under № 5 **
+  run ( done ) {
+    console.log( 'Go!' )
+    return done()
+  },
+}
+```
+> \** Several tasks may have the same number, in this case they will be executed in parallel
+
+The main build has the following order:
+```
+0. [ del ]
+1. [ compile:templates ]
+2. [ generate:symbol, compile:styles, compile:scripts, generate:favicons, copy:assets ]
+3. [ copy:fonts, copy:imgs, inject:data ]
+4. [ browserSync:watch, minify:images ]
+
+5. [ mytask ] // our new task will be run last
+```
+> Important! The order of default tasks is better not to change.
+
+A task can also contain a watch function, which should return an object with settings for watch:
+```js
+watch () {
+  return {
+    files: '**/**/*.md', // globs
+    tasks: 'mytask', // task name or an array of names to run
+  }
+},
+```
+
+<p align="center">
+  <a href="#navigation"><img align="center" src="https://werty1001.github.io/sep.svg" alt=""></a>
+</p>
+
 # FAQ
 
 #### And where to store global files?
 * To store some global files, you can use a root block, such as a **page** or **app**, you probably will have one.
 
 #### How to add a file in the production, regardless of whether it has in code or not?
-* Easy, just add a special @always key to the file before the extension, for example man@always.png, this will work for any static files.
+* Easy, just add a special @always key to the file before the extension, for example man<span></span>@always.png, this will work for any static files.
 
 #### Can I use Vue or React here?
 * Probably, but why? This builder solves other problems; it is better to use special tools when developing the SPA, for example, the Create React App or the Vue CLI.
