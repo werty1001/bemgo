@@ -178,7 +178,7 @@ block/
 # App's config
 All the basic settings are stored in a single file **app/config.js**, this approach allows you to use the same builder for different projects and configure each application individually.
 
-> The default settings will be used, if there is no config.js
+> If there is no config.js, then the default settings will be used, after any changes in the configuration, you need to restart the development mode!
 
 ### Default settings:
 ```js
@@ -279,7 +279,7 @@ Each block can have a data file **data.json**, this data is available in the mar
 // message/data.json
 
 {
-  "greeting": "Hellow, world!"
+  "greeting": "Hello, world!"
 }
 ```
 This data is easily get from a special object **global.jsons**
