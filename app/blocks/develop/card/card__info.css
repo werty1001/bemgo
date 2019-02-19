@@ -1,0 +1,10 @@
+.card__info {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: 20px;
+	font-size: 12px;
+	height: 16px;
+	line-height: 16px;
+	color: #777;
+}
