@@ -22,7 +22,7 @@ module.exports = function ( task ) {
 
 	// Options
 
-	const { paths, store, config } = task
+	const { paths, store, config, notify } = task
 	const levels = ( store.levels = [] )
 	const jsons = ( store.jsons = {} )
 	const deps = ( store.deps = {} )
@@ -70,12 +70,18 @@ module.exports = function ( task ) {
 
 				if ( isFile( json ) ) {
 
-					const data = JSON.parse( fs.readFileSync( json ) )
+					try {
 
-					if ( !jsons[block] )
-						jsons[block] = data
-					else
-						jsons[block] = Object.assign( jsons[block], data )
+						const data = JSON.parse( fs.readFileSync( json ) )
+
+						if ( !jsons[block] )
+							jsons[block] = data
+						else
+							jsons[block] = Object.assign( jsons[block], data )
+
+					} catch (e) {
+						throw new Error( `\n\n\x1b[41mFAIL\x1b[0m: A JSON "\x1b[36m${path.join( level, block, 'data.json' )}\x1b[0m" have SyntaxError:\n${e.message}\n\n` )
+					}
 
 				}
 
@@ -153,6 +159,7 @@ module.exports = function ( task ) {
 	} catch (e) {
 
 		console.log(e)
+		notify.onError( 'Error' )(e)
 
 	}
 

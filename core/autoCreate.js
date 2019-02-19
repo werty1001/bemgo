@@ -88,6 +88,8 @@ module.exports = function ( task ) {
 
 			nodes.forEach( el => {
 
+				if ( isNodeIgnored( el, ignore.nodes ) ) return
+
 				const add = [].concat( BEM.isBlock( el ) ? config.autoCreate.folders : [] )
 
 				files.forEach( item => {

@@ -107,7 +107,7 @@ module.exports = {
 	html () {
 		return require( 'gulp-file-include' )({
 			prefix: '@@',
-			basepath: '@file',
+			basepath: this.paths._blocks,
 			context: {
 				global: this.getGlobalData()
 			}
@@ -180,6 +180,8 @@ module.exports = {
 
 		if ( [ 'data.json', 'deps.js' ].includes( name ) )
 			name = path.dirname( file ).split( path.sep ).pop()
+		else
+			name = path.basename( file, path.extname( file ) )
 
 		Object.keys( pages ).forEach( page => {
 

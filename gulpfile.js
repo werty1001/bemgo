@@ -37,7 +37,7 @@ const plumber = require( 'gulp-plumber' )
 const errorHandler = (err) => {
 	return plumber( err => {
 		console.log( err )
-		return notify.onError( 'Error1' )( err )
+		return notify.onError( 'Error' )( err )
 	})
 }
 
