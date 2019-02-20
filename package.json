@@ -22,7 +22,7 @@
     "add": "node ./core/.add",
     "zip": "gulp zip",
     "zip:dev": "cross-env SNAPSHOT=true gulp zip",
-    "init": "del app && git clone https://github.com/werty1001/app.git app"
+    "init": "node ./core/.del && git clone https://github.com/werty1001/app.git app"
   },
   "devDependencies": {
     "@babel/core": "^7.3.3",
