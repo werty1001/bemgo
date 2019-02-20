@@ -128,6 +128,8 @@ module.exports = function ( code, page, task ) {
 
 	injected = injected.replace( comment, ( str, indent, com, space, name ) => {
 
+		if ( !indent ) indent = ''
+
 		indent = '\n' + indent.replace( newLine, '' )
 		name = name.trim().toLowerCase()
 
@@ -153,6 +155,8 @@ module.exports = function ( code, page, task ) {
 	// Add gap
 
 	injected = injected.replace( withGap, ( str, indent, com, space, name ) => {
+
+		if ( !indent ) indent = ''
 
 		indent = '\n\n\n' + indent.replace( newLine, '' )
 
