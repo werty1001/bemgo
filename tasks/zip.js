@@ -1,39 +1,53 @@
 
-'use strict';
+'use strict'
 
 
-// Require
+// Creating zip archive with a complete build or snapshot with development files
 
-const gulp = require( 'gulp' );
+module.exports = {
 
+	name: 'zip',
 
-// Export
+	run ( done ) {
 
-module.exports = ( task, core ) => {
+		let files = this.paths.dist( '**', '*.*' )
 
+		if ( process.env.SNAPSHOT ) files = [
+			this.paths.root( '.!(DS_Store)' ),
+			this.paths.root( '*.!(log|db|ini|zip)' ),
+			this.paths.root( '!(node_modules|bower_components|dist)', '**', '*.*' ),
+		]
 
-	task.src = core.zipDev ? [
+		return this.gulp.src( files )
+			.pipe( this.plumber() )
+			.pipe( this.zip() )
+			.pipe( this.dest() )
 
-		core.path.root( '.!(DS_Store)' ),
-		core.path.root( '*.!(log|db|ini|zip)' ),
-		core.path.root( '!(node_modules|bower_components|dist)/**/*.*' ),
-		'!' + core.path.temp( '*.*' )
-	
-	] : core.path.dist( '**/*.*' );
+	},
 
-	task.data = `${core.zipDev ? 'dev_' : ''}${core.config.app.name}[${core.getDate()}].zip`;
+	dest () {
+		return this.gulp.dest( this.paths._root )
+	},
 
-	task.dest = core.path.ROOT;
+	zip () {
 
+		const prefix = process.env.SNAPSHOT ? 'dev_' : ''
+		const name = ( this.config.app && this.config.app.name || 'app' )
 
-	return ( cb ) => {
+		return require( 'gulp-zip' )( prefix + name + `[${this.getTime()}].zip` )
+	},
 
-		return gulp.src( task.src )
-			.pipe( require( 'gulp-plumber' )( core.errorHandler ) )
-			.pipe( require( 'gulp-zip' )( task.data ) )
-			.pipe( gulp.dest( task.dest ) );
+	getTime () {
 
-	} 
+		const now = new Date()
+		const year = now.getFullYear()
+		const month = ( '0' + ( now.getMonth() + 1 ) ).slice(-2)
+		const day = ( '0' + now.getDate() ).slice(-2)
+		const hours = ( '0' + now.getHours() ).slice(-2)
+		const minutes = ( '0' + now.getMinutes() ).slice(-2)
 
+		return `${year}-${month}-${day}__${hours}-${minutes}`
+	},
 
-};
+}
+

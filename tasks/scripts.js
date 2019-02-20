@@ -1,88 +1,120 @@
 
-'use strict';
+'use strict'
 
 
-// Require
+// Compile scripts
 
-const webpack = require( 'webpack' );
+module.exports = {
 
+	build: 2,
+	name: 'compile:scripts',
 
-// Export
+	run ( done ) {
 
-module.exports = ( task, core ) => {
+		const scripts = ( this.store.scripts = {} )
+		const checkFiles = require( this.paths.core( 'checkFiles' ) )
 
+		checkFiles( 'scripts', this ) // Check scripts before compile
 
-	const config = {
+		// Compile
 
-		entry: core.getEntry(),
+		if ( this.isDev || !this.config.build.bundles.includes( 'js' ) ) {
 
-		output: {
-			path: core.path.SCRIPTS,
-			filename: '[name].js',
-			library: 'app'
-		},
+			const files = ( scripts[this.mainBundle] || [] )
 
-		module: {
-			rules: []
-		},
+			return this.compileBundle( files, this.mainBundle, done )
 
-		plugins: [
+		} else {
 
-			new webpack.NoErrorsPlugin(),
+			return this.compileBundles( scripts )
 
-			new webpack.DefinePlugin({
-				'__webpackSymbol__': JSON.stringify( core.symbol )
+		}
+
+	},
+
+	compileBundle ( files, bundle, done ) {
+
+		if ( files.length === 0 ) return done()
+
+		const options = {
+			sourcemaps: this.config.build.sourcemaps.includes( 'js' )
+		}
+
+		return this.gulp.src( files, options )
+			.pipe( this.plumber() )
+			.pipe( this.babel() )
+			.pipe( this.concat( bundle ) )
+			.pipe( this.dest( this.isDev ? options.sourcemaps : false ) )
+			.pipe( this.uglify() )
+			.pipe( this.rename() )
+			.pipe( this.minifyDest( options.sourcemaps ) )
+			.on( 'end', done )
+
+	},
+
+	watch () {
+		return {
+			files: this.paths.blocks( '**', '!(deps)' + this.config.use.scripts ),
+			tasks: this.name,
+		}
+	},
+
+	dest ( sourcemaps ) {
+		return this.gulp.dest( this.paths._scripts, {
+			sourcemaps: sourcemaps ? '.' : false
+		})
+	},
+
+	concat ( bundle ) {
+		return require( 'gulp-concat' )({
+			path: this.path.join( this.paths._root, `${bundle}.js` )
+		})
+	},
+
+	babel () {
+		if ( !this.config.build.babel ) return this.pipe()
+		return require( 'gulp-babel' )({
+			configFile: this.paths.root( '.babelrc' )
+		})
+	},
+
+	uglify () {
+		return require( 'gulp-if' )( this.forMinify.bind( this ), require( 'gulp-uglify' )() )
+	},
+
+	rename () {
+		return require( 'gulp-if' )( this.forMinify.bind( this ), require( 'gulp-rename' )({ suffix: '.min' }) )
+	},
+
+	forMinify ( file ) {
+		return !this.isDev && this.path.extname( file.path ) === '.js'
+	},
+
+	minifyDest ( sourcemaps ) {
+		return require( 'gulp-if' )( !this.isDev, this.dest( sourcemaps ) )
+	},
+
+	compileBundles ( bundles ) {
+
+		const promises = []
+
+		Object.keys( bundles ).forEach( bundle => {
+
+			const files = bundles[bundle]
+
+			if ( files.length === 0 ) return
+
+			const promise = new Promise( ( resolve, reject ) => {
+				this.compileBundle( files, bundle, resolve )
 			})
 
-		],
+			return promises.push( promise )
 
-		externals: {
-			'jquery': 'jQuery'
-		},
+		})
 
-		devtool: ( core.config.options.sourcemap && core.isDevelopment ) ? 'cheap-module-inline-source-map' : false
+		return Promise.all( promises )
 
-	};
+	},
 
-	// Add babel
-
-	if ( core.config.options.babel ) {
-
-		config.module.rules.push({
-			test: /\.js$/,
-			exclude: /(node_modules|bower_components)/,
-			use: [ 'babel-loader?presets[]=env' ]
-		});
-
-	}
-
-	// Add optimize
-
-	if ( ! core.isDevelopment ) {
-
-		config.plugins.push(
-
-			new webpack.optimize.UglifyJsPlugin({
-				include: /\.min\.js$/,
-				compress: {
-					warnings: false,
-					unsafe: true
-				}
-			})
-
-		);
-
-	}
-
-
-	return ( cb ) => webpack( config, ( err, stats ) => {
-
-		if ( ! err ) err = stats.toJson().errors[0];
-
-		cb( !core.isDevelopment && err ? err : '' );
-
-	});
-
-
-};
+}
 

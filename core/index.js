@@ -1,632 +1,261 @@
 
-'use strict';
+'use strict'
 
 
 // Require
 
-const fs = require( 'fs' );
-const path = require( 'path' );
-
-
-// Core
-
-const core = {};
-
-
-// Config
-
-core.config = {};
-
-try {
-
-	let assign = true,
-		configDef = require( path.join( __dirname, 'config.js' ) ),
-		configApp = path.join( __dirname, '..', 'app', 'config.js' );
-
-	try { fs.statSync( configApp ); } catch(e) { assign = false; }
-
-	if ( assign ) {
-
-		let app = require( configApp );
-
-		Object.keys( app ).forEach( ( key ) => {
-
-			if ( ! configDef[key] ) return configDef[key] = app[key] || '';
-
-			let _old = configDef[key],
-				_new = app[key],
-				_oldType = Array.isArray( _old ) ? 'array' : ( typeof _old === 'object' && _old !== null ) ? 'object' : typeof _old,
-				_newType = Array.isArray( _new ) ? 'array' : ( typeof _new === 'object' && _new !== null ) ? 'object' : typeof _new;
-
-			if ( _oldType !== _newType )
-				return console.log( `Type of '${key}' must be ${_oldType}!` );
-			
-			if ( _oldType === 'array' )
-				return configDef[key] = _old.concat( _new.filter( val => _old.indexOf( val ) < 0 ) );
-
-			if ( _oldType === 'object' )
-				return configDef[key] = Object.assign( {}, _old, _new );
-
-			configDef[key] = _new;
-
-		});
-
-	}
-
-	core.config = configDef;
-
-} catch(e) { console.log(e); }
+const fs = require( 'fs' )
+const path = require( 'path' )
+const notify = require( 'gulp-notify' )
+const { isFile, isDirectory } = require( './is' )
 
 
 // Paths
 
-let paths = {
+const root = path.resolve( __dirname, '..' )
 
-	root: '..',
-	dist: 'dist',
-	tasks: 'tasks',
-	core: 'core',
-	temp: 'core/temp',
-	app: 'app',
-	blocks: 'app/blocks',
-	pages: 'app/pages'
+const paths = {
 
-};
+	root () {
+		return path.join( this._root, ...arguments )
+	},
 
-core.path = {
+	core () {
+		return path.join( this._core, ...arguments )
+	},
 
-	SEP: path.sep,
-	DESKTOP: path.join( ( process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE ), 'Desktop' ),
+	tasks () {
+		return path.join( this._tasks, ...arguments )
+	},
 
-	relative: ( one = '', two = '' ) => path.relative( one, two ),
-	join: ( one = '', two = '', three = '', four = '' ) => path.join( one, two, three, four )
+	dist () {
+		return path.join( this._dist, ...arguments )
+	},
 
-};
+	app () {
+		return path.join( this._app, ...arguments )
+	},
 
-Object.keys( paths ).forEach( ( key ) => {
+	blocks () {
+		return path.join( this._blocks, ...arguments )
+	},
 
-	if ( typeof key !== 'string' ) return;
+	pages () {
+		return path.join( this._pages, ...arguments )
+	},
 
-	if ( key === 'root' )
-		core.path[key] = ( myPath = '' ) => path.join( __dirname, paths[key], myPath );
-	else
-		core.path[key] = ( myPath = '' ) => core.path.root( path.join( paths[key], myPath ) );
-
-	core.path[ key.toUpperCase() ] = core.path[key]();
-
-});
-
-Object.keys( core.config.dist ).forEach( ( key ) => {
-
-	if ( typeof key !== 'string' ) return;
-
-	core.path[key] = ( myPath = '' ) => core.path.dist( path.join( core.config.dist[ key ], myPath ) );
-
-	core.path[ key.toUpperCase() ] = core.path[key]();
-
-});
-
-
-// Add temp dir
-
-try {
-
-	fs.lstatSync( core.path.TEMP );
-
-} catch (e) {
-
-	try {
-
-		fs.mkdirSync( core.path.TEMP );
-
-	} catch (e) { console.log(e); }
+	_root: root,
+	_core: __dirname,
+	_tasks: path.join( root, 'tasks' ),
+	_dist: path.join( root, 'dist' ),
+	_app: path.join( root, 'app' ),
+	_blocks: path.join( root, 'app', 'blocks' ),
+	_pages: path.join( root, 'app', 'pages' ),
 
 }
 
 
-// Levels
+// Add main dirs
 
-core.levels = [];
+try {
 
+	if ( !isDirectory( paths._app ) ) fs.mkdirSync( paths._app )
+	if ( !isDirectory( paths._blocks ) ) fs.mkdirSync( paths._blocks )
 
-// Tree
+} catch(e) {
 
-core.tree = {};
+	console.log(e)
+	notify.onError( 'Error' )(e)
 
-
-// Used
-
-core.used = {};
-
-
-// Environment
-
-core.isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV == 'development';
+}
 
 
-// Port
+// Try read config
 
-core.port = process.env.port ? process.env.port : 3000;
+let config = {}
+
+try {
+
+	const appConfig = paths.app( 'config.js' )
+
+	if ( isFile( appConfig ) ) config = require( appConfig )
+
+} catch(e) {
+
+	console.log(e)
+	notify.onError( 'Error' )(e)
+
+} finally {
 
 
-// Zip
+	// Merge extnames
 
-core.zipDev = !!process.env.ZIP_DEV;
-
-
-
-//
-// Helpers
-//
-
-
-// Bem helpers
-
-core.bem = {
-
-	isBlock: function( cls ) {
-		return ( ! this.isElement( cls ) && ! this.isModifier( cls ) );
-	},
-
-	isElement: function( cls ) {
-		return ( /([a-zA-Z0-9])__([a-zA-Z0-9])/i.test( cls ) && ! this.isModifier( cls ) );
-	},
-
-	isModifier: function( cls ) {
-		return ( /([a-zA-Z0-9])_([a-zA-Z0-9])/i.test( cls ) || /([a-zA-Z0-9])--([a-zA-Z0-9])/i.test( cls ) );
-	},
-
-	delModifier: function( cls ) {
-		if ( /([a-zA-Z0-9])--([a-zA-Z0-9])/i.test( cls ) ) return cls.split( '--' )[0];
-		let isElement = cls.match( /^[a-zA-Z0-9-]+__[a-zA-Z0-9-]+/ )
-		if ( isElement ) return isElement[0]
-		return cls.split( '_' )[0]
-	},
-
-	getBlock: function( cls ) {
-		let el = this.delModifier( cls );
-		return el.split( '__' )[0];
+	const use = {
+		templates: '.html',
+		scripts: '.js',
+		styles: '.css',
 	}
 
-};
+	config.use = Object.assign( use, config.use )
+
+	if ( config.use.templates[0] !== '.' ) config.use.templates = '.' + config.use.templates
+	if ( config.use.scripts[0] !== '.' ) config.use.scripts = '.' + config.use.scripts
+	if ( config.use.styles[0] !== '.' ) config.use.styles = '.' + config.use.styles
 
 
-// Get date
+	// Merge build
 
-core.getDate = () => {
+	const build = {
+		autoprefixer: [ 'last 3 versions' ],
+		babel: false,
+		BEML: false,
+		bundles: [],
+		sourcemaps: [],
+		imagemin: [],
+		mainBundle: 'app',
+		mainLevel: 'develop',
+		pugMap: false,
+		globalStyle: false,
+		addVersions: true,
+		HTMLRoot: './',
+	}
 
-	let now = new Date(),
-		year = now.getFullYear(),
-		month = ( '0' + ( now.getMonth() + 1 ) ).slice(-2),
-		day = ( '0' + now.getDate() ).slice(-2),
-		hours = ( '0' + now.getHours() ).slice(-2),
-		minutes = ( '0' + now.getMinutes() ).slice(-2);
+	config.build = Object.assign( build, config.build )
 
-	return `${year}-${month}-${day}__${hours}-${minutes}`;
+	if ( !Array.isArray( config.build.bundles ) ) config.build.bundles = [config.build.bundles]
+	if ( !Array.isArray( config.build.sourcemaps ) ) config.build.sourcemaps = [config.build.sourcemaps]
+	if ( !Array.isArray( config.build.autoprefixer ) ) config.build.autoprefixer = [config.build.autoprefixer]
 
-};
+	config.build.imagemin = [].concat( config.build.imagemin ).filter( el => [ 'png', 'jpg', 'svg', 'gif' ].includes( el ) )
 
-
-// Get extname
-
-core.getExtname = ( file ) => path.extname( file );
+	if ( config.build.imagemin.includes( 'jpg' ) ) config.build.imagemin.push( 'jpeg' )
 
 
-// Get basename
+	// Merge autoCreate
 
-core.getBasename = ( file, extname = false ) => extname ? path.basename( file ) : path.basename( file, path.extname( file ) );
+	if ( !config.autoCreate ) config.autoCreate = {}
 
+	config.autoCreate = {
+		onlyOnWatch: true,
+		folders: [].concat( config.autoCreate.folders ).filter( el => !!el ),
+		files: [].concat( config.autoCreate.files ).filter( el => !!el ),
+		levels: [].concat( config.autoCreate.levels ).filter( el => !!el ),
+		ignoreNodes: [].concat( config.autoCreate.ignoreNodes ).filter( el => !!el ),
+		ignoreStyle: [].concat( config.autoCreate.ignoreStyle ).filter( el => !!el ),
+		ignoreScript: [].concat( config.autoCreate.ignoreScript ).filter( el => !!el ),
+		ignoreTemplate: [].concat( config.autoCreate.ignoreTemplate ).filter( el => !!el ),
+	}
 
-// Check file
-
-core.checkFile = ( file ) => {
 	
-	let check = true;
+	// Merge addContent
 
-	try {
-
-		fs.statSync( file );
-
-	} catch (e) { check = false; }
-
-	return check;
-};
-
-
-// Add dir
-
-core.addDir = ( dir ) => {
-
-	try {
-
-		fs.mkdirSync( dir );
-
-	} catch (e) { console.log(e); }
-
-};
-
-
-// Check dir
-
-core.isDirectory = ( dir ) => {
-
-	let exist = false;
-
-	try {
-
-		exist = fs.lstatSync( dir );
-
-	} catch (e) {}
-
-	return exist ? exist.isDirectory() : exist;
-
-};
-
-
-// Read dir
-
-core.readDir = ( dir ) => {
-
-	let array = [];
-
-	try {
-
-		array = fs.readdirSync( dir );
-
-	} catch (e) { console.log(e); }
-
-	return array;
-
-};
-
-
-// Write file
-
-core.writeFile = ( file, content ) => {
-
-	try {
-
-		fs.writeFileSync( file, content, 'utf8' );
-
-	} catch (e) { console.log(e); }
-
-};
-
-
-// Read file
-
-core.readFile = ( file ) => {
-
-	let data = '';
-
-	try {
-
-		data = fs.readFileSync( file ).toString();
-
-	} catch (e) { console.log(e); }
-
-	return data;
-
-};
-
-
-// Ignore node
-
-core.isIgnoreNode = ( node ) => {
-
-	let list = core.config.autoCreateIgnore;
-
-		list = Array.isArray( list ) ? list : [list];
-
-	if ( ! node || ! list.length > 0 ) return false;
-
-	if ( list.indexOf( node ) !== -1 ) return true;
-
-	for( let i = 0; i<list.length; i++ ) {
-
-		if( list[i] instanceof RegExp && node.search( list[i] ) !== -1 ) return true;
-
+	const addContent = {
+		deps: `\n'use strict'\n\nmodule.exports = {\n\n\tnodes: [],\n\n\tmodules: [],\n\n}\n`,
+		json: '{\n\t"key": "value"\n}',
+		css: '.[name] {}'
 	}
 
-	return false;
-
-};
+	config.addContent = Object.assign( addContent, config.addContent )
 
 
+	// Merge favicons
 
-//
-// For tasks
-//
-
-
-// Error handler
-
-core.errorHandler = ( err ) => {
-
-	console.log( err.toString() );
-
-	return require( 'gulp-notify' ).onError( 'Error' )( err );
-
-};
-
-
-// Pretty fix
-
-core.prettyFix = ( file ) => {
-
-	let html = file.contents.toString();
-
-		html = html.replace( /\/>/gi, '>' ).replace( /(<[A-Z][A-Z0-9]*\b[^>]*>)([^<>]*)(<\/[A-Z][A-Z0-9]*>)/gi, ( str, start, content, end ) => {
-	
-			let tag = start.replace( /<|>/gi, '' ).split(' ')[0],
-				selfClosing = ['img', 'input', 'hr', 'br', 'wbr', 'source', 'area', 'col', 'colgroup', 'meta', 'link'];
-
-			return start + ( selfClosing.indexOf( tag ) === -1 ? content.trim() : content ) + end;
-		});
-
-	file.contents = new Buffer( html );
-
-	return core.path.DIST;
-
-};
-
-
-// Resolver url
-
-core.sassResolver = function( url, prev, done ) {
-
-	let file;
-
-	if ( this.options.file !== prev )
-		url = path.join( path.dirname( prev ), url );
-
-	file = path.resolve( path.dirname( this.options.file ), url );
-
-	fs.readFile( file, ( err, data ) => {
-
-		if ( err ) return done( err );
-
-		let css = data.toString().replace( /url\((.+?)\)/g, ( str, val ) => {
-
-			val = val.replace( /'|"/g, '' );
-
-			if ( /^(?:https?\:)?\/\//i.test( val ) ) return `url('${val}')`;
-
-			let newUrl = path.join( path.dirname( url ), val );
-
-				return `url('${newUrl}')`;
-
-		});
-
-		return done( { contents: css } );
-
-	});
-
-	return;
-
-};
-
-
-// Edit url
-
-core.editUrl = ( url ) => {
-
-	if ( ! url || /^(?:https?\:)?\/\//i.test( url ) || url.indexOf( 'data:' ) === 0 || url.charAt(0) === '#' ) return;
-
-	let array = url.split( path.sep ),
-		block = array[ array.length - 3 ],
-		name = array[ array.length - 1 ],
-		asset = path.resolve( core.path.TEMP, url.split( '?' )[0] );
-
-
-	if ( url.indexOf( 'fonts/' ) !== -1 ) {
-
-		if ( core.used.fonts.indexOf( asset ) === -1 ) core.used.fonts.push( asset );
-
-		return path.join( path.relative( core.path.STYLES, core.path.FONTS ), path.basename( url ) );
-		
+	const favicons = {
+		android: false,
+		appleIcon: false,
+		appleStartup: false,
+		coast: false,
+		favicons: true,
+		firefox: false,
+		windows: false,
+		yandex: false
 	}
 
-	if ( url.indexOf( 'img/sprite/' ) !== -1 ) {
+	config.favicons = Object.assign( favicons, config.favicons )
 
-		if ( ! core.isDevelopment ) return url;
 
-		block = 'sprite_' + array[ array.length - 4 ];
+	// Merge dist
 
+	const dist = {
+		styles: 'styles',
+		fonts: 'styles/fonts',
+		img: 'styles/img',
+		symbol: 'styles/img',
+		scripts: 'scripts',
+		static: 'static',
+		favicons: 'favicons',
 	}
 
-	if ( core.used.imgs.indexOf( asset ) === -1 ) core.used.imgs.push( asset );
-
-	return path.join( path.relative( core.path.STYLES, core.path.IMG ), `${block}_${name}` );
-
-};
-
-
-// Get entry
-
-core.getEntry = () => {
-
-	let entry = {};
-
-	try {
-
-		fs.readdirSync( core.path.TEMP ).forEach( ( val ) => {
-
-			let extname = path.extname( val ),
-				file = path.basename( val, extname );
-
-				if ( file && extname !== core.config.extnames.scripts ) return;
-
-				entry[ file ] = core.path.temp( val );
-
-				if ( ! core.isDevelopment ) entry[ `${file}.min` ] = entry[ file ];
-
-		});
-
-	} catch (e) { console.log(e); }
-
-	return entry;
-
-};
-
-
-// Read blocks
-
-core.readBlocks = () => {
-
-	let map = '', data = {};
-
-	core.readDir( core.path.BLOCKS ).forEach( ( level ) => {
-
-		let levelDir = path.join( core.path.BLOCKS, level );
-
-		if ( ! core.isDirectory( levelDir ) ) return;
-
-		core.readDir( levelDir ).forEach( ( block ) => {
-
-			let blockDir = path.join( levelDir, block ),
-				dataFile = path.join( levelDir, block, 'data.json' );
-
-			if ( ! core.isDirectory( blockDir ) ) return;
-
-			if ( core.config.extnames.templates === '.pug' ) {
-
-				core.readDir( blockDir ).forEach( ( file ) => {
-
-					if ( path.extname( file ) !== '.pug' ) return;
-
-					let include = path.join( path.relative( core.path.TEMP, core.path.BLOCKS ), level, block, file );
-						map += `${map === '' ? '' : '\n'}include ${include}`;
-
-				});
-
-			}
-
-			core.writeFile( core.path.temp( 'blocks' + core.config.extnames.templates ), map );
-
-			try {
-
-				data[block] = JSON.parse( fs.readFileSync( dataFile ) );
-
-			} catch (e) {}
-
-		});
-		
-	});
-
-	return data;
-
-};
-
-
-// Add file
-
-core.addFile = ( data, type ) => {
-
-	let extnames = {
-		json: '.json',
-		style: core.config.extnames.styles,
-		script: core.config.extnames.scripts,
-		template: core.config.extnames.templates,
-		page: core.config.extnames.templates
-	};
-
-	data = Array.isArray( data ) ? data : [data];
-
-	data.forEach( ( val ) => {
-
-		if ( ! val || typeof val !== 'string' ) return;
-
-		let block = core.bem.getBlock( val ),
-			content = core.config.add[ type ] || '',
-			dir = ( type === 'page' ) ? core.path.app( 'pages' ) : core.path.blocks( core.path.join( core.config.mainLevel, block ) ),
-			name = ( type === 'json' ) ? 'data' : val,
-			file = core.path.join( dir, name + extnames[ type ] ),
-			comment = ( name === block ) ? `\n/*!*\n * ${block.charAt(0).toUpperCase() + block.slice(1)}\n */\n` : '';
-
-			if ( core.checkFile( file ) ) return;
-
-			if ( ! core.isDirectory( dir ) ) core.addDir( dir );
-
-			content = content.replace( /\[comment\]/g, comment ).replace( /\[name\]/g, name );
-
-			core.writeFile( file, content );
-	});
-
-};
-
-
-// Add block
-
-core.addBlock = ( data, content = false ) => {
-
-	data = Array.isArray( data ) ? data : [data];
-
-	data.forEach( ( item ) => {
-
-		if ( ! item || typeof item !== 'string' ) return;
-
-		item = item + ( content ? `:${content}` : '' );
-
-		let array = item.split( ':' ),
-			block = array[0],
-			dir = core.path.blocks( core.path.join( core.config.mainLevel, block ) );
-
-			if ( ! core.isDirectory( dir ) ) core.addDir( dir );
-
-			array.forEach( ( val ) => {
-
-				if ( typeof val !== 'string' || val === block ) return;
-
-				if ( [ 'img', 'fonts', 'assets' ].indexOf( val ) !== -1 ) {
-
-					let folder = core.path.join( dir, val );
-
-					if ( ! core.isDirectory( folder ) ) core.addDir( folder );
-
-				}
-
-				if ( [ 'json', 'style', 'script', 'template' ].indexOf( val ) !== -1 ) core.addFile( block, val );
-
-			});
-	});
-
-};
-
-
-// Edit time
-
-core.editTime = ( file ) => {
-
-	if ( ! core.checkFile( file ) ) return;
-
-	try {
-
-		fs.utimesSync( file, ( Date.now() / 1000 ), ( Date.now() / 1000 ) );
-
-	} catch (e) { console.log(e); }
-
-};
-
-
-// Change template
-
-core.changeTemplate = ( file ) => {
-
-	let name = core.getBasename( file );
-
-		Object.keys( core.tree ).forEach( ( page ) => {
-
-			if ( page === 'app' ) return;
-
-			if ( name === 'layout' || core.tree[page][name] ) core.editTime( core.path.pages( page + core.config.extnames.templates ) );
-
-		});
-
-};
+	config.dist = Object.assign( dist, config.dist )
+
+
+	// Merge optimization
+
+	const optimization = {
+		jpg: {
+			progressive: true,
+			arithmetic: false,
+		},
+		png: {
+			optimizationLevel: 5,
+			bitDepthReduction: true,
+			colorTypeReduction: true,
+			paletteReduction: true,
+		},
+		gif: {
+			optimizationLevel: 1,
+			interlaced: true
+		},
+		svg: [
+			{ cleanupIDs: false },
+			{ removeViewBox: false },
+			{ mergePaths: false },
+		],
+	}
+
+	if ( !config.optimization ) config.optimization = {}
+
+	config.optimization = {
+		jpg: Object.assign( optimization.jpg, config.optimization.jpg ),
+		png: Object.assign( optimization.png, config.optimization.png ),
+		gif: Object.assign( optimization.gif, config.optimization.gif ),
+		svg: [].concat( config.optimization.svg || optimization.svg ),
+		ignore: [].concat( config.optimization.ignore ).filter( el => !!el ),
+	}
+
+
+	// Protect
+
+	config.cleanProtect = [].concat( config.cleanProtect )
+
+
+	// HTMLBeautify
+
+	const beautify = {
+		indent_size: 2,
+		indent_char: ' ',
+		indent_with_tabs: false,
+		indent_inner_html: true,
+		end_with_newline: false,
+		extra_liners: [],
+		preserve_newlines: true,
+		max_preserve_newlines: 2,
+		content_unformatted: [ 'pre', 'textarea' ],
+	}
+
+	if ( config.HTMLBeautify !== false ) config.HTMLBeautify = Object.assign( beautify, config.HTMLBeautify )
+
+
+	// Add dist paths
+
+	for ( let key in config.dist ) {
+		if ( ! paths[`_${key}`] ) paths[`_${key}`] = path.join( paths._dist, ( config.dist[key] || '' ).trim() )
+	}
+
+}
 
 
 // Export
 
-module.exports = core;
+module.exports = { notify, paths, config }
 

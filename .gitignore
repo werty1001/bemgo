@@ -37,7 +37,6 @@ node_modules
 bower_components
 jspm_packages
 dist
-core/temp
 
 # Optional npm cache directory
 .npm

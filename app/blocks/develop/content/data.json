@@ -1,0 +1,58 @@
+{
+	"cards": [
+		{
+			"image": "item_1.jpg",
+			"title": "Anthony Casalena",
+			"description": "Anthony Casalena is the Founder and CEO of Squarespace, which launched in 2004.",
+			"rating": 2343
+		},
+		{
+			"image": "item_2.jpg",
+			"title": "Nicole AnaSenes",
+			"description": "Nicole brings 20 years of technology industry experience to Squarespace’s Finance Team, and has spent much of her career building new or transforming existing businesses.",
+			"rating": 4563
+		},
+		{
+			"image": "item_3.jpg",
+			"title": "Andrew Bartholomew",
+			"description": "As the leader of Squarespace's Strategy division, Andrew is responsible for developing the analytical frameworks that shape the company’s business.",
+			"rating": 9876
+		},
+		{
+			"image": "item_4.jpg",
+			"title": "Anthony Casalena",
+			"description": "Anthony Casalena is the Founder and CEO of Squarespace, which launched in 2004.",
+			"rating": 1345
+		},
+		{
+			"image": "item_2.jpg",
+			"title": "Nicole AnaSenes",
+			"description": "Nicole brings 20 years of technology industry experience to Squarespace’s Finance Team, and has spent much of her career building new or transforming existing businesses.",
+			"rating": 1254
+		},
+		{
+			"image": "item_3.jpg",
+			"title": "Andrew Bartholomew",
+			"description": "As the leader of Squarespace's Strategy division, Andrew is responsible for developing the analytical frameworks that shape the company’s business.",
+			"rating": 1245
+		},
+		{
+			"image": "item_1.jpg",
+			"title": "Anthony Casalena",
+			"description": "Anthony Casalena is the Founder and CEO of Squarespace, which launched in 2004.",
+			"rating": 7532
+		},
+		{
+			"image": "item_2.jpg",
+			"title": "Nicole AnaSenes",
+			"description": "Nicole brings 20 years of technology industry experience to Squarespace’s Finance Team, and has spent much of her career building new or transforming existing businesses.",
+			"rating": 4623
+		},
+		{
+			"image": "item_3.jpg",
+			"title": "Andrew Bartholomew",
+			"description": "As the leader of Squarespace's Strategy division, Andrew is responsible for developing the analytical frameworks that shape the company’s business.",
+			"rating": 123
+		}
+	]
+}

@@ -1,56 +1,42 @@
 
-'use strict';
+'use strict'
 
 
-// Require
+// Generate favicons
 
-const gulp = require( 'gulp' );
+module.exports = {
 
+	build: 2,
+	name: 'generate:favicons',
 
-// Export
+	run ( done ) {
 
-module.exports = ( task, core ) => {
+		const icon = this.paths.app( 'icon.png' )
 
+		// Return cb if dev or icon doesn't exist
 
-	if ( core.isDevelopment ) return ( cb ) => cb();
+		if ( this.isDev || !this.isFile( icon ) ) return done()
 
+		return this.gulp.src( icon )
+			.pipe( this.plumber() )
+			.pipe( this.favicons() )
+			.pipe( this.dest() )
 
-	task.src = core.path.app( 'icon.png' );
+	},
 
-	task.data = core.config.manifest;
+	dest () {
+		return this.gulp.dest( this.paths._favicons )
+	},
 
-	task.data.path = core.config.dist.favicons;
+	favicons () {
 
-	task.data.icons = {
-		favicons: core.config.head.favicons,
-		windows: core.config.head.msapplication,
-		android: core.config.head.androidIcons,
-		appleIcon: core.config.head.appleTouchIcons,
-		appleStartup: false,
-		firefox: false,
-		yandex: false,
-		coast: false
-	};
+		const config = this.config.manifest || {}
 
-	task.dest = ( file ) => {
+		config.icons = this.config.favicons
 
-		if ( file.path === 'browserconfig.xml' || ( ! core.config.head.manifest && file.path === 'manifest.json' ) )
-			return core.path.TEMP;
+		return require( 'gulp-favicons' )( config )
 
-		return core.path.FAVICONS;
-	};
+	},
 
-	if ( ! core.checkFile( task.src ) ) task.src = core.path.core( 'icon.png' );
+}
 
-
-	return ( cb ) => {
-
-		return gulp.src( task.src )
-			.pipe( require( 'gulp-plumber' )( core.errorHandler ) )
-			.pipe( require( 'gulp-favicons' )( task.data ) )
-			.pipe( gulp.dest( task.dest ) );
-
-	};
-
-
-};

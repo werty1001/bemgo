@@ -1,5 +1,5 @@
 
-'use strict';
+'use strict'
 
 
 // Export
@@ -7,39 +7,52 @@
 module.exports = {
 
 	app: {
-		lang: 'ru',
-		name: 'Site',
-		description: 'Description',
-		domain: 'google.com',
-		preloader: false,
-		responsive: true,
-		microdata: false,
-		jquery: true
+		name: 'Demo',
 	},
 
-	extnames: {
-		templates: '.pug',
+	use: {
+		templates: '.html',
 		scripts: '.js',
-		styles: '.scss'
+		styles: '.css',
+	},
+
+	build: {
+		imagemin: [ 'png', 'jpg' ],
+		sourcemaps: [ 'js', 'css' ],
+		autoprefixer: [ 'last 3 versions', 'ie 10', 'ie 11' ],
+	},
+
+	autoCreate: {
+		onlyOnWatch: true,
+		files: [ '.css' ],
+		levels: [ 'develop' ],
+		ignoreNodes: [ 'symbol', /_no_js/i ],
 	},
 
 	dist: {
 		styles: 'styles',
 		fonts: 'styles/fonts',
 		img: 'styles/img',
+		symbol: 'styles/img',
 		scripts: 'scripts',
 		static: 'static',
-		favicons: 'favicons'
+		favicons: 'favicons',
 	},
 
-	add: {
-		page: `extends ../blocks/layout\n\nblock data\n\n\t- const page = { path: '[name]', title: '', description: '', styles: [], scripts: [] };\n\nblock content\n\n\n\t= nnn\n\t// Header \n\n\t+header\n\n\n\t= nnn\n\t// Content \n\n\t+content\n\n\n\t= nnn\n\t// Footer \n\n\t+footer\n\n`,
-		style: '.[name] {}',
-		template: `mixin [name]( bem )\n\n\t+b( '[name]', bem )&attributes(attributes)\n\n\t\tblock\n`
+	favicons: {
+		android: false,
+		appleIcon: false,
+		appleStartup: false,
+		coast: false,
+		favicons: true,
+		firefox: false,
+		windows: false,
+		yandex: false,
 	},
 
-	autoCreate: true,
-	autoCreateAdd: [ 'style' ],
-	autoCreateIgnore: [ 'html' ]
+	HTMLBeautify: {
+		preserve_newlines: false,
+	},
 
-};
+}
+

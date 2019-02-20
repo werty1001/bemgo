@@ -1,0 +1,17 @@
+.content__cards {
+	display: flex;
+	flex-flow: row wrap;
+}
+
+.content__cards .card {
+	flex: 0 0 33.33333%;
+	max-width: calc( 33.33333% - 22px );
+}
+
+.content__cards .card:nth-child(3n-1) {
+	margin: 0 33px;
+}
+
+.content__cards .card:not(:nth-child(-n+3)) {
+	margin-top: 33px;
+}
