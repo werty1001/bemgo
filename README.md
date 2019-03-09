@@ -353,7 +353,7 @@ You can opt out of template engines and write markup on regular HTML with additi
 If you don’t like to write BEM code with your hands, then there are several plugins in the build that simplify this task.
 * [Bemto](https://github.com/kizu/bemto) - for Pug
 ```pug
-include node_modules/bemto.pug/bemto
+include /node_modules/bemto.pug/bemto
 
 +b.block
   +e.element Text
@@ -361,7 +361,7 @@ include node_modules/bemto.pug/bemto
 
 * [BemPug](https://github.com/werty1001/bempug) - for Pug
 ```pug
-include node_modules/bempug/index
+include /node_modules/bempug/index
 
 +b( 'block' )
   +e( 'element' ) Text

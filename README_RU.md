@@ -352,7 +352,7 @@ build: {
 Если вы не любите писать БЭМ код руками, то в сборке сразу есть несколько плагинов, которые упрощают эту задачу.
 * [Bemto](https://github.com/kizu/bemto) - для Pug
 ```pug
-include node_modules/bemto.pug/bemto
+include /node_modules/bemto.pug/bemto
 
 +b.block
   +e.element Text
@@ -360,7 +360,7 @@ include node_modules/bemto.pug/bemto
 
 * [BemPug](https://github.com/werty1001/bempug) - для Pug
 ```pug
-include node_modules/bempug/index
+include /node_modules/bempug/index
 
 +b( 'block' )
   +e( 'element' ) Text
