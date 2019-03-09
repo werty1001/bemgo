@@ -884,6 +884,7 @@ More information about each type of compression settings can be found in the doc
 If for some reason the [automatic creation of files and blocks](#automatic-creation-of-files-and-blocks) does not fit, then you can quickly create blocks and files from the terminal with a simple command `npm run add`.
 
 > If any files and folders already exist, they will simply be ignored.
+> When using the zsh command shell, you need to escape the square brackets or take the command in quotes!
 
 Create a block **header** and **footer** with additional files:
 ```bash
