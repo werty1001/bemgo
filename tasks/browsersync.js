@@ -14,6 +14,7 @@ module.exports = {
 		if ( !this.isDev || !process.env.WATCH ) return done()
 
 		const browserSync = require( 'browser-sync' ).create()
+		const files = this.paths.slashNormalize( this.paths.dist( '**', '*.*' ) )
 
 		browserSync.init({
 			server: this.paths._dist,
@@ -29,7 +30,7 @@ module.exports = {
 		this.store.watch = true
 
 		return browserSync
-			.watch( this.paths.dist( '**', '*.*' ) )
+			.watch( files )
 			.on( 'change', browserSync.reload )
 
 	},

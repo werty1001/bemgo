@@ -150,7 +150,7 @@ if ( process.env.WATCH ) watchers.forEach( item => {
 	if ( !item || item.constructor !== Object )
 		return console.log( `Watcher must be a object!` )
 
-	const files = item.files
+	const files = paths.slashNormalize( item.files )
 	const tasks = Array.isArray( item.tasks ) ? item.tasks : [item.tasks]
 	const options = Object.assign({}, item.options )
 	const run = []

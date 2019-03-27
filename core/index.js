@@ -16,6 +16,17 @@ const root = path.resolve( __dirname, '..' )
 
 const paths = {
 
+	slashNormalize ( str ) {
+
+		const isExtendedLengthPath = /^\\\\\?\\/.test( str )
+		const hasNonAscii = /[^\u0000-\u0080]+/.test( str ) // eslint-disable-line no-control-regex
+
+		if ( isExtendedLengthPath || hasNonAscii ) return str
+
+		return str.replace( /\\/g, '/' )
+
+	},
+
 	root () {
 		return path.join( this._root, ...arguments )
 	},
