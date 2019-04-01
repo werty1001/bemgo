@@ -45,7 +45,7 @@ module.exports = function ( file, task ) {
 
 		if ( !isFile( file ) ) return console.log( `\n\x1b[41mFAIL\x1b[0m: Global style for import "\x1b[36m${item}\x1b[0m" not found!\nFullpath: "${file}"\n` )
 
-		injected += `@import "${path.relative( dirname, file )}";\n`
+		injected += `@import "${paths.slashNormalize( path.relative( dirname, file ) )}";\n`
 
 	})
 
