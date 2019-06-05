@@ -69,7 +69,7 @@ module.exports = {
 
 	since ( file ) {
 		const isModule = file.path.indexOf( this.paths._blocks ) === -1
-		return isModule ? 1262304000000 : this.gulp.lastRun( this.name )
+		return isModule ? null : this.gulp.lastRun( this.name )
 	},
 
 }

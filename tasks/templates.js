@@ -198,7 +198,7 @@ module.exports = {
 		const path = this.path
 		const page = path.basename( file.path )
 		const pageInDeps = this.store.depsChanged && this.store.depsChanged.includes( page )
-		return pageInDeps ? 1262304000000 : this.gulp.lastRun( this.name )
+		return pageInDeps ? null : this.gulp.lastRun( this.name )
 	},
 
 	checkDeps ( file ) {
