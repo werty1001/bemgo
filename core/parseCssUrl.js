@@ -31,7 +31,7 @@ module.exports = function ( asset, dir, options, decl ) {
 	const isModule = asset.absolutePath.indexOf( this.paths._blocks ) === -1
 	const basename = path.basename( asset.url )
 
-	if ( isSprite && !this.isDev ) return path.relative( this.paths._root, asset.absolutePath )
+	if ( isSprite && !this.isDev ) return this.paths.slashNormalize( path.relative( this.paths._root, asset.absolutePath ) )
 
 
 	let name = ''
@@ -57,7 +57,7 @@ module.exports = function ( asset, dir, options, decl ) {
 
 	}
 
-	return path.join( dist, name )
+	return this.paths.slashNormalize( path.join( dist, name ) )
 
 
 }
