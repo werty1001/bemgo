@@ -29,10 +29,9 @@ module.exports = function ( url, prev, done ) {
 
 	const file = path.resolve( path.dirname( this.options.file ), url )
 
-	return fs.readFile( file, ( err, data ) => {
+	try {
 
-		if ( err ) return done( err )
-
+		const data = fs.readFileSync( file );
 		const css = data.toString().replace( /url\((.+?)\)/g, ( str, val ) => {
 
 			val = val.replace( /'|"/g, '' )
@@ -47,7 +46,10 @@ module.exports = function ( url, prev, done ) {
 
 		return done( { contents: css } )
 
-	})
+	} catch(e) {
+		console.log('sassResolver error: ', e)
+		return done(e)
+	}
 
 }
 
