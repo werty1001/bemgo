@@ -711,8 +711,8 @@ autoCreate: {
   files: [ '.css', '.js' ],
   levels: [ 'develop' ],
   ignoreNodes: [ /__[\w]/i ],
-  ignoreStyle: [ /(_|--)[\w]/i ], // ignore modifiers when creating styles
-  ignoreScript: [ /(_|--)[\w]/i  ], // ignore modifiers when creating scripts
+  ignoreStyle: [ /[a-z\d](_|--)[a-z\d]/i ], // ignore modifiers when creating styles
+  ignoreScript: [ /[a-z\d](_|--)[a-z\d]/i  ], // ignore modifiers when creating scripts
   ignoreTemplate: [], // by analogy, you can specify for templates
 },
 
